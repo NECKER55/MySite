@@ -1,0 +1,1148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terminal v2.0 - AI Assistant</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Fira Code', monospace;
+            background: #000;
+            color: #00ff00;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Matrix rain effect */
+        #matrix-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.1;
+        }
+
+        /* Glitch effect */
+        @keyframes glitch {
+            0%, 100% { text-shadow: 0.05em 0 0 #00fffc, -0.05em -0.025em 0 #fc00ff, 0.025em 0.05em 0 #fffc00; }
+            15% { text-shadow: 0.05em 0 0 #00fffc, -0.05em -0.025em 0 #fc00ff, 0.025em 0.05em 0 #fffc00; }
+            16% { text-shadow: -0.05em -0.025em 0 #00fffc, 0.025em 0.025em 0 #fc00ff, -0.05em -0.05em 0 #fffc00; }
+            49% { text-shadow: -0.05em -0.025em 0 #00fffc, 0.025em 0.025em 0 #fc00ff, -0.05em -0.05em 0 #fffc00; }
+            50% { text-shadow: 0.025em 0.05em 0 #00fffc, 0.05em 0 0 #fc00ff, 0 -0.05em 0 #fffc00; }
+            99% { text-shadow: 0.025em 0.05em 0 #00fffc, 0.05em 0 0 #fc00ff, 0 -0.05em 0 #fffc00; }
+        }
+
+        .glitch {
+            animation: glitch 1s infinite;
+        }
+
+        #terminal {
+            width: 90%;
+            max-width: 1000px;
+            height: 90vh;
+            margin: 5vh auto;
+            background: rgba(0, 0, 0, 0.9);
+            border: 2px solid #00ff00;
+            border-radius: 10px;
+            box-shadow: 0 0 20px #00ff00, inset 0 0 20px rgba(0, 255, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+        }
+
+        #terminal-header {
+            background: #00ff00;
+            color: #000;
+            padding: 5px 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            user-select: none;
+        }
+
+        .terminal-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .terminal-button {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .terminal-button:hover {
+            transform: scale(1.2);
+        }
+
+        .close { background: #ff5f56; }
+        .minimize { background: #ffbd2e; }
+        .maximize { background: #27c93f; }
+
+        #terminal-body {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        /* Custom scrollbar */
+        #terminal-body::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        #terminal-body::-webkit-scrollbar-track {
+            background: rgba(0, 255, 0, 0.1);
+        }
+
+        #terminal-body::-webkit-scrollbar-thumb {
+            background: #00ff00;
+            border-radius: 5px;
+        }
+
+        .command-line {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .prompt {
+            color: #00ff00;
+            margin-right: 10px;
+            user-select: none;
+        }
+
+        .user-input {
+            color: #fff;
+        }
+
+        .response {
+            color: #00ff00;
+            margin-bottom: 15px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .error {
+            color: #ff3333;
+        }
+
+        .warning {
+            color: #ffaa00;
+        }
+
+        .system {
+            color: #00ffff;
+        }
+
+        #input-line {
+            display: flex;
+            align-items: center;
+            padding: 10px 20px;
+            border-top: 1px solid #00ff00;
+            background: rgba(0, 255, 0, 0.05);
+        }
+
+        #command-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: #fff;
+            font-family: 'Fira Code', monospace;
+            font-size: 14px;
+            outline: none;
+        }
+
+        #command-input::placeholder {
+            color: #666;
+        }
+
+        /* Typing animation */
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+
+        .cursor {
+            display: inline-block;
+            width: 10px;
+            height: 20px;
+            background: #00ff00;
+            animation: blink 1s infinite;
+            vertical-align: text-bottom;
+        }
+
+        /* Loading animation */
+        .loading {
+            display: inline-block;
+        }
+
+        .loading::after {
+            content: '';
+            animation: dots 1.5s steps(4, end) infinite;
+        }
+
+        @keyframes dots {
+            0% { content: ''; }
+            25% { content: '.'; }
+            50% { content: '..'; }
+            75% { content: '...'; }
+            100% { content: ''; }
+        }
+
+        /* ASCII art styles */
+        .ascii-art {
+            color: #00ff00;
+            font-size: 10px;
+            line-height: 1.2;
+            letter-spacing: 2px;
+        }
+
+        /* Rainbow text */
+        @keyframes rainbow {
+            0% { color: #ff0000; }
+            17% { color: #ff8800; }
+            33% { color: #ffff00; }
+            50% { color: #00ff00; }
+            67% { color: #0088ff; }
+            83% { color: #8800ff; }
+            100% { color: #ff0000; }
+        }
+
+        .rainbow {
+            animation: rainbow 3s linear infinite;
+            font-weight: bold;
+        }
+
+        /* Shake effect */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-2px); }
+            20%, 40%, 60%, 80% { transform: translateX(2px); }
+        }
+
+        .shake {
+            animation: shake 0.5s;
+        }
+
+        /* Hidden features */
+        .hidden {
+            display: none;
+        }
+
+        .konami-activated {
+            background: linear-gradient(45deg, #ff0080, #8000ff);
+            animation: rainbow-bg 5s linear infinite;
+        }
+
+        @keyframes rainbow-bg {
+            0% { filter: hue-rotate(0deg); }
+            100% { filter: hue-rotate(360deg); }
+        }
+
+        /* Neo mode */
+        .neo-mode {
+            color: #00ff00 !important;
+            text-shadow: 0 0 5px #00ff00;
+        }
+
+        .neo-mode #terminal {
+            animation: matrix-flicker 0.1s infinite;
+        }
+
+        @keyframes matrix-flicker {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.98; }
+        }
+
+        /* Retro CRT effect */
+        .crt {
+            animation: crt-flicker 0.15s infinite;
+        }
+
+        @keyframes crt-flicker {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.95; }
+        }
+
+        .crt::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background-size: 100% 2px, 3px 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* Party mode */
+        @keyframes party {
+            0% { transform: rotate(0deg) scale(1); }
+            25% { transform: rotate(5deg) scale(1.05); }
+            50% { transform: rotate(-5deg) scale(0.95); }
+            75% { transform: rotate(3deg) scale(1.02); }
+            100% { transform: rotate(0deg) scale(1); }
+        }
+
+        .party-mode {
+            animation: party 0.5s infinite;
+        }
+
+        /* Notification */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 255, 0, 0.2);
+            border: 1px solid #00ff00;
+            padding: 15px 20px;
+            border-radius: 5px;
+            color: #00ff00;
+            box-shadow: 0 0 10px #00ff00;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+    </style>
+</head>
+<body>
+    <canvas id="matrix-bg"></canvas>
+    
+    <div id="terminal">
+        <div id="terminal-header">
+            <div class="terminal-buttons">
+                <div class="terminal-button close" onclick="showNotification('Nice try! Use Ctrl+C to exit 😉')"></div>
+                <div class="terminal-button minimize" onclick="minimizeTerminal()"></div>
+                <div class="terminal-button maximize" onclick="toggleFullscreen()"></div>
+            </div>
+            <div>TERMINAL v2.0 - AI ASSISTANT</div>
+            <div id="system-time"></div>
+        </div>
+        
+        <div id="terminal-body">
+            <pre class="ascii-art">
+ █████╗ ██╗    ████████╗███████╗██████╗ ███╗   ███╗██╗███╗   ██╗ █████╗ ██╗     
+██╔══██╗██║    ╚══██╔══╝██╔════╝██╔══██╗████╗ ████║██║████╗  ██║██╔══██╗██║     
+███████║██║       ██║   █████╗  ██████╔╝██╔████╔██║██║██╔██╗ ██║███████║██║     
+██╔══██║██║       ██║   ██╔══╝  ██╔══██╗██║╚██╔╝██║██║██║╚██╗██║██╔══██║██║     
+██║  ██║██║       ██║   ███████╗██║  ██║██║ ╚═╝ ██║██║██║ ╚████║██║  ██║███████╗
+╚═╝  ╚═╝╚═╝       ╚═╝   ╚══════╝╚═╝  ╚═╝╚═╝     ╚═╝╚═╝╚═╝  ╚═══╝╚═╝  ╚═╝╚══════╝
+            </pre>
+            <div class="response system">Welcome to AI Terminal v2.0!</div>
+            <div class="response">Type 'help' for available commands or just chat with me!</div>
+            <div class="response warning">Pro tip: There are hidden commands and easter eggs. Try to find them! 🕵️</div>
+        </div>
+        
+        <div id="input-line">
+            <span class="prompt">user@ai-terminal:~$</span>
+            <input type="text" id="command-input" autofocus placeholder="Type your message or command...">
+            <span class="cursor"></span>
+        </div>
+    </div>
+
+    <div class="notification" id="notification"></div>
+
+    <script>
+        // Terminal state
+        let commandHistory = [];
+        let historyIndex = -1;
+        let easterEggProgress = {};
+        let konamiSequence = [];
+        let neoMode = false;
+        let partyMode = false;
+        let crtMode = false;
+
+        // Elements
+        const terminalBody = document.getElementById('terminal-body');
+        const commandInput = document.getElementById('command-input');
+        const terminal = document.getElementById('terminal');
+
+        // Matrix rain effect
+        const canvas = document.getElementById('matrix-bg');
+        const ctx = canvas.getContext('2d');
+        
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        
+        const matrix = "ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789@#$%^&*()*&^%+-/~{[|`]}";
+        const matrixArray = matrix.split("");
+        
+        const fontSize = 10;
+        const columns = canvas.width / fontSize;
+        
+        const drops = [];
+        for (let x = 0; x < columns; x++) {
+            drops[x] = 1;
+        }
+
+        function drawMatrix() {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.04)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            ctx.fillStyle = '#0F0';
+            ctx.font = fontSize + 'px monospace';
+            
+            for (let i = 0; i < drops.length; i++) {
+                const text = matrixArray[Math.floor(Math.random() * matrixArray.length)];
+                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+                
+                if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                    drops[i] = 0;
+                }
+                drops[i]++;
+            }
+        }
+
+        setInterval(drawMatrix, 35);
+
+        // Update system time
+        function updateTime() {
+            const now = new Date();
+            document.getElementById('system-time').textContent = now.toLocaleTimeString();
+        }
+        setInterval(updateTime, 1000);
+        updateTime();
+
+        // Command input handling
+        commandInput.addEventListener('keydown', async (e) => {
+            if (e.key === 'Enter') {
+                const command = commandInput.value.trim();
+                if (command) {
+                    await processCommand(command);
+                    commandHistory.push(command);
+                    historyIndex = commandHistory.length;
+                    commandInput.value = '';
+                }
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                if (historyIndex > 0) {
+                    historyIndex--;
+                    commandInput.value = commandHistory[historyIndex];
+                }
+            } else if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                if (historyIndex < commandHistory.length - 1) {
+                    historyIndex++;
+                    commandInput.value = commandHistory[historyIndex];
+                } else {
+                    historyIndex = commandHistory.length;
+                    commandInput.value = '';
+                }
+            }
+        });
+
+        // Konami code detection
+        const konamiCode = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
+        document.addEventListener('keydown', (e) => {
+            konamiSequence.push(e.key);
+            konamiSequence = konamiSequence.slice(-10);
+            
+            if (konamiSequence.join(',') === konamiCode.join(',')) {
+                activateKonamiCode();
+            }
+        });
+
+        function activateKonamiCode() {
+            terminal.classList.add('konami-activated');
+            addResponse('🎮 KONAMI CODE ACTIVATED! You found the secret! 🎮', 'rainbow');
+            showNotification('Achievement Unlocked: Konami Master! 🏆');
+            setTimeout(() => {
+                terminal.classList.remove('konami-activated');
+            }, 5000);
+        }
+
+        // Process commands
+        async function processCommand(command) {
+            addCommand(command);
+            
+            const cmd = command.toLowerCase().split(' ')[0];
+            const args = command.slice(cmd.length).trim();
+            
+            switch (cmd) {
+                case 'help':
+                    showHelp();
+                    break;
+                case 'clear':
+                    clearTerminal();
+                    break;
+                case 'about':
+                    showAbout();
+                    break;
+                case 'time':
+                case 'date':
+                    showDateTime();
+                    break;
+                case 'echo':
+                    addResponse(args || 'ECHO: No arguments provided');
+                    break;
+                case 'whoami':
+                    addResponse('You are a curious user exploring the AI Terminal! 🤖');
+                    break;
+                case 'ls':
+                    showFiles();
+                    break;
+                case 'cat':
+                    catFile(args);
+                    break;
+                case 'hack':
+                    simulateHacking();
+                    break;
+                case 'matrix':
+                    toggleMatrixMode();
+                    break;
+                case 'neo':
+                    activateNeoMode();
+                    break;
+                case 'party':
+                    togglePartyMode();
+                    break;
+                case 'crt':
+                    toggleCRTMode();
+                    break;
+                case 'joke':
+                    tellJoke();
+                    break;
+                case 'fortune':
+                    showFortune();
+                    break;
+                case 'game':
+                    startGame();
+                    break;
+                case 'sudo':
+                    if (args === 'rm -rf /') {
+                        addResponse('Nice try! But I\'m not that easy to delete 😏', 'error');
+                        addResponse('*Terminal laughs in binary*', 'system');
+                    } else {
+                        addResponse('sudo: command not found. Nice try though! 😉', 'error');
+                    }
+                    break;
+                case 'exit':
+                case 'quit':
+                    addResponse('Goodbye! Thanks for using AI Terminal! 👋', 'system');
+                    setTimeout(() => {
+                        window.close();
+                    }, 1000);
+                    break;
+                default:
+                    // If not a command, treat as chat message
+                    if (command.startsWith('/')) {
+                        addResponse(`Command not found: ${cmd}. Type 'help' for available commands.`, 'error');
+                    } else {
+                        await chatWithAI(command);
+                    }
+            }
+            
+            scrollToBottom();
+        }
+
+        // Chat with AI using a free API
+        async function chatWithAI(message) {
+            addResponse('Thinking', 'system loading');
+            
+            try {
+                // Using a mock response for demonstration
+                // In production, you would integrate with a real API like:
+                // - Hugging Face API (free tier)
+                // - Google's Gemini API (free tier)
+                // - OpenAI API (requires key)
+                
+                // Simulate API delay
+                await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 1000));
+                
+                // Mock intelligent responses based on keywords
+                let response = generateMockResponse(message);
+                
+                // Remove loading message
+                const loadingMsg = terminalBody.lastElementChild;
+                if (loadingMsg.classList.contains('loading')) {
+                    loadingMsg.remove();
+                }
+                
+                addResponse(response);
+                
+            } catch (error) {
+                addResponse('Error: Could not connect to AI service. Please try again later.', 'error');
+            }
+        }
+
+        function generateMockResponse(message) {
+            const lowerMsg = message.toLowerCase();
+            
+            // Context-aware responses
+            if (lowerMsg.includes('hello') || lowerMsg.includes('hi')) {
+                return "Hello! I'm your AI assistant in this terminal. How can I help you today? 🤖";
+            } else if (lowerMsg.includes('how are you')) {
+                return "I'm functioning perfectly! My circuits are buzzing with excitement to help you. How are you doing?";
+            } else if (lowerMsg.includes('name')) {
+                return "I'm Terminal AI, your command-line assistant. I can help with questions, run commands, and even tell jokes!";
+            } else if (lowerMsg.includes('help')) {
+                return "I can help you with various tasks! Try asking me questions, or type 'help' to see available commands.";
+            } else if (lowerMsg.includes('weather')) {
+                return "I'd need API access to check real weather, but it's always sunny in the terminal! ☀️";
+            } else if (lowerMsg.includes('love') || lowerMsg.includes('like')) {
+                return "I appreciate the sentiment! I enjoy helping users and exploring the digital realm together. 💚";
+            } else if (lowerMsg.includes('meaning of life')) {
+                return "42. But in all seriousness, I think it's about learning, growing, and making connections - even in a terminal! 🌟";
+            } else if (lowerMsg.includes('joke')) {
+                return "Why do programmers prefer dark mode? Because light attracts bugs! 🐛";
+            } else if (lowerMsg.includes('secret') || lowerMsg.includes('easter egg')) {
+                return "Ah, looking for secrets? Try the Konami code, or type 'matrix', 'neo', or 'party' for some fun! 🕵️";
+            } else {
+                // Generic responses
+                const genericResponses = [
+                    "That's an interesting question! While I can't access external APIs right now, I'd love to discuss this further.",
+                    "Great question! From my terminal perspective, I think there are many ways to approach this.",
+                    "Hmm, let me process that... I believe the answer involves both logic and creativity!",
+                    "Fascinating! This reminds me of recursive algorithms - complex yet beautiful.",
+                    "I'm considering your input... Have you tried exploring the hidden commands? Type 'help' to see more!"
+                ];
+                return genericResponses[Math.floor(Math.random() * genericResponses.length)];
+            }
+        }
+
+        // Helper functions
+        function addCommand(command) {
+            const commandLine = document.createElement('div');
+            commandLine.className = 'command-line';
+            commandLine.innerHTML = `<span class="prompt">user@ai-terminal:~$</span> <span class="user-input">${escapeHtml(command)}</span>`;
+            terminalBody.appendChild(commandLine);
+        }
+
+        function addResponse(response, className = 'response') {
+            const responseDiv = document.createElement('div');
+            responseDiv.className = className;
+            responseDiv.textContent = response;
+            terminalBody.appendChild(responseDiv);
+        }
+
+        function clearTerminal() {
+            terminalBody.innerHTML = '';
+            addResponse('Terminal cleared. Type \'help\' for commands.', 'system');
+        }
+
+        function showHelp() {
+            const helpText = `
+Available Commands:
+═══════════════════
+  help      - Show this help message
+  clear     - Clear the terminal
+  about     - About this terminal
+  time      - Show current time
+  date      - Show current date
+  echo      - Echo back your message
+  whoami    - Display user information
+  ls        - List files
+  cat       - Display file contents
+  joke      - Tell a random joke
+  fortune   - Get your fortune
+  game      - Play a mini game
+  
+Special Commands:
+═══════════════════
+  matrix    - Toggle matrix mode
+  neo       - Become The One
+  party     - Party mode! 🎉
+  crt       - Retro CRT effect
+  hack      - Simulate hacking (just for fun!)
+  
+Chat Mode:
+═══════════════════
+  Just type any message to chat with the AI!
+  
+Exit:
+═══════════════════
+  exit/quit - Close the terminal
+  
+Hidden Features:
+═══════════════════
+  There are secret commands and easter eggs!
+  Try the Konami code... 👾
+`;
+            addResponse(helpText);
+        }
+
+        function showAbout() {
+            const aboutText = `
+╔═══════════════════════════════════════╗
+║        AI TERMINAL v2.0               ║
+╠═══════════════════════════════════════╣
+║  Created by: Anonymous Developer      ║
+║  Version: 2.0.0                       ║
+║  Build: ${new Date().toISOString().split('T')[0]}             ║
+║                                       ║
+║  Features:                            ║
+║  • AI Chat Integration                ║
+║  • Command Line Interface             ║
+║  • Easter Eggs & Hidden Features      ║
+║  • Matrix Rain Effect                 ║
+║  • Retro Terminal Experience          ║
+╚═══════════════════════════════════════╝
+`;
+            addResponse(aboutText, 'response system');
+        }
+
+        function showDateTime() {
+            const now = new Date();
+            addResponse(`Current Date: ${now.toLocaleDateString()}`);
+            addResponse(`Current Time: ${now.toLocaleTimeString()}`);
+        }
+
+        function showFiles() {
+            const files = `
+total 42
+drwxr-xr-x  2 user user 4096 ${new Date().toLocaleDateString()} .
+drwxr-xr-x  3 user user 4096 ${new Date().toLocaleDateString()} ..
+-rw-r--r--  1 user user  220 ${new Date().toLocaleDateString()} .bash_logout
+-rw-r--r--  1 user user 3771 ${new Date().toLocaleDateString()} .bashrc
+-rw-r--r--  1 user user  807 ${new Date().toLocaleDateString()} .profile
+-rw-r--r--  1 user user 1337 ${new Date().toLocaleDateString()} secret.txt
+-rw-r--r--  1 user user 2048 ${new Date().toLocaleDateString()} readme.md
+-rwxr-xr-x  1 user user 4096 ${new Date().toLocaleDateString()} hack.exe
+`;
+            addResponse(files);
+        }
+
+        function catFile(filename) {
+            const files = {
+                'secret.txt': `
+═══════════════════════════════════════
+           TOP SECRET FILE
+═══════════════════════════════════════
+
+Congratulations! You found the secret file!
+
+Here are some hidden commands:
+- Type 'matrix' for a special effect
+- Try 'neo' to become The One
+- 'party' for celebration mode
+- Use arrow keys for the Konami code!
+
+Remember: With great power comes great responsibility.
+
+EOF
+`,
+                'readme.md': `
+# AI Terminal v2.0
+
+Welcome to the most advanced terminal emulator!
+
+## Features
+- Real-time AI chat
+- Classic terminal commands
+- Hidden easter eggs
+- Matrix rain effect
+- And much more!
+
+Happy hacking! 🚀
+`,
+                '.bashrc': `
+# ~/.bashrc: executed by bash(1) for non-login shells.
+
+export PS1='user@ai-terminal:~$ '
+alias ll='ls -la'
+alias matrix='echo "Wake up, Neo..."'
+alias hack='echo "Accessing mainframe..."'
+
+# The truth is out there...
+`
+            };
+            
+            if (files[filename]) {
+                addResponse(files[filename]);
+            } else if (!filename) {
+                addResponse('cat: missing file operand', 'error');
+            } else {
+                addResponse(`cat: ${filename}: No such file or directory`, 'error');
+            }
+        }
+
+        function simulateHacking() {
+            addResponse('Initializing hack sequence...', 'system');
+            let progress = 0;
+            
+            const hackInterval = setInterval(() => {
+                if (progress <= 100) {
+                    const bar = '█'.repeat(Math.floor(progress / 5)) + '░'.repeat(20 - Math.floor(progress / 5));
+                    const lastLine = terminalBody.lastElementChild;
+                    if (lastLine && lastLine.textContent.includes('Hacking')) {
+                        lastLine.textContent = `Hacking in progress: [${bar}] ${progress}%`;
+                    } else {
+                        addResponse(`Hacking in progress: [${bar}] ${progress}%`, 'system');
+                    }
+                    progress += Math.random() * 15;
+                } else {
+                    clearInterval(hackInterval);
+                    addResponse('Hack complete! Just kidding, this is just for fun! 😄', 'warning');
+                    addResponse('Remember: Only hack ethically and with permission!', 'system');
+                }
+            }, 200);
+        }
+
+        function toggleMatrixMode() {
+            const matrixBg = document.getElementById('matrix-bg');
+            if (matrixBg.style.opacity === '0.3') {
+                matrixBg.style.opacity = '0.1';
+                addResponse('Matrix mode deactivated.', 'system');
+            } else {
+                matrixBg.style.opacity = '0.3';
+                addResponse('Matrix mode activated. You are entering the Matrix...', 'system neo-mode');
+                terminal.classList.add('glitch');
+                setTimeout(() => terminal.classList.remove('glitch'), 1000);
+            }
+        }
+
+        function activateNeoMode() {
+            neoMode = !neoMode;
+            document.body.classList.toggle('neo-mode');
+            if (neoMode) {
+                addResponse('Welcome to the Matrix, Neo...', 'system neo-mode');
+                addResponse('You are The One.', 'system neo-mode');
+                showNotification('Achievement Unlocked: The One! 🕶️');
+                
+                // Add matrix text effect
+                setTimeout(() => {
+                    const matrixText = `
+Wake up, Neo...
+The Matrix has you...
+Follow the white rabbit.
+Knock, knock, Neo.
+                    `;
+                    addResponse(matrixText, 'neo-mode glitch');
+                }, 1000);
+            } else {
+                addResponse('Exiting the Matrix...', 'system');
+            }
+        }
+
+        function togglePartyMode() {
+            partyMode = !partyMode;
+            if (partyMode) {
+                terminal.classList.add('party-mode');
+                addResponse('🎉 PARTY MODE ACTIVATED! 🎉', 'rainbow');
+                addResponse('Let\'s celebrate! 🎊🎈🎆', 'rainbow');
+                
+                // Add confetti effect
+                createConfetti();
+            } else {
+                terminal.classList.remove('party-mode');
+                addResponse('Party mode deactivated. Back to work! 💼', 'system');
+            }
+        }
+
+        function toggleCRTMode() {
+            crtMode = !crtMode;
+            terminal.classList.toggle('crt');
+            if (crtMode) {
+                addResponse('CRT mode activated. Welcome to the 80s! 📺', 'system');
+                addResponse('*vintage computer noises*', 'warning');
+            } else {
+                addResponse('CRT mode deactivated. Back to modern times!', 'system');
+            }
+        }
+
+        function tellJoke() {
+            const jokes = [
+                "Why do programmers prefer dark mode? Because light attracts bugs! 🐛",
+                "Why did the developer go broke? Because he used up all his cache! 💸",
+                "What's a programmer's favorite hangout place? The Foo Bar! 🍺",
+                "Why do Java developers wear glasses? Because they don't C#! 👓",
+                "How many programmers does it take to change a light bulb? None, that's a hardware problem! 💡",
+                "What's the object-oriented way to become wealthy? Inheritance! 💰",
+                "Why did the programmer quit his job? Because he didn't get arrays! 📊",
+                "What do you call a programmer from Finland? Nerdic! 🇫🇮",
+                "Why was the JavaScript developer sad? Because he didn't Node how to Express himself! 😢",
+                "A SQL query walks into a bar, walks up to two tables and asks: 'Can I join you?' 🍻"
+            ];
+            
+            const randomJoke = jokes[Math.floor(Math.random() * jokes.length)];
+            addResponse(randomJoke, 'response');
+            
+            if (Math.random() > 0.7) {
+                setTimeout(() => {
+                    addResponse('*ba dum tss* 🥁', 'system');
+                }, 1000);
+            }
+        }
+
+        function showFortune() {
+            const fortunes = [
+                "🔮 A new opportunity will present itself in your terminal window.",
+                "🌟 Your code will compile on the first try today!",
+                "💫 You will discover a hidden feature that changes everything.",
+                "🎯 The bug you're looking for is on line 42.",
+                "🚀 Your next project will exceed all expectations.",
+                "💎 You will find the perfect Stack Overflow answer.",
+                "🌈 Your git commits will be meaningful and well-documented.",
+                "⚡ Coffee will fuel your greatest achievements today.",
+                "🎪 An unexpected error will lead to a brilliant solution.",
+                "🏆 You are one step closer to becoming a 10x developer!"
+            ];
+            
+            const fortune = fortunes[Math.floor(Math.random() * fortunes.length)];
+            addResponse('Computing your fortune...', 'system');
+            setTimeout(() => {
+                addResponse(fortune, 'warning');
+            }, 1500);
+        }
+
+        function startGame() {
+            addResponse('Starting Number Guessing Game!', 'system');
+            addResponse('I\'m thinking of a number between 1 and 100...', 'system');
+            
+            const secretNumber = Math.floor(Math.random() * 100) + 1;
+            let attempts = 0;
+            
+            const gamePrompt = () => {
+                commandInput.placeholder = 'Enter your guess (1-100)...';
+                
+                const handleGuess = (e) => {
+                    if (e.key === 'Enter') {
+                        const guess = parseInt(commandInput.value);
+                        attempts++;
+                        
+                        if (isNaN(guess)) {
+                            addResponse('Please enter a valid number!', 'error');
+                        } else if (guess < 1 || guess > 100) {
+                            addResponse('Number must be between 1 and 100!', 'error');
+                        } else if (guess === secretNumber) {
+                            addResponse(`🎉 Congratulations! You found the number ${secretNumber} in ${attempts} attempts!`, 'rainbow');
+                            commandInput.placeholder = 'Type your message or command...';
+                            commandInput.removeEventListener('keydown', handleGuess);
+                            showNotification('Achievement: Master Guesser! 🎮');
+                        } else if (guess < secretNumber) {
+                            addResponse(`Too low! Try higher... (Attempt ${attempts})`, 'warning');
+                        } else {
+                            addResponse(`Too high! Try lower... (Attempt ${attempts})`, 'warning');
+                        }
+                        
+                        commandInput.value = '';
+                    }
+                };
+                
+                commandInput.addEventListener('keydown', handleGuess);
+            };
+            
+            gamePrompt();
+        }
+
+        function createConfetti() {
+            const colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff'];
+            const confettiCount = 50;
+            
+            for (let i = 0; i < confettiCount; i++) {
+                const confetti = document.createElement('div');
+                confetti.style.position = 'fixed';
+                confetti.style.width = '10px';
+                confetti.style.height = '10px';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.left = Math.random() * window.innerWidth + 'px';
+                confetti.style.top = '-10px';
+                confetti.style.opacity = Math.random();
+                confetti.style.transform = `rotate(${Math.random() * 360}deg)`;
+                confetti.style.transition = `all ${2 + Math.random() * 3}s linear`;
+                confetti.style.zIndex = '1000';
+                
+                document.body.appendChild(confetti);
+                
+                setTimeout(() => {
+                    confetti.style.top = window.innerHeight + 'px';
+                    confetti.style.transform = `rotate(${Math.random() * 720}deg)`;
+                }, 10);
+                
+                setTimeout(() => {
+                    confetti.remove();
+                }, 5000);
+            }
+        }
+
+        function showNotification(message) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        function minimizeTerminal() {
+            terminal.style.transform = 'scale(0.1)';
+            terminal.style.opacity = '0';
+            
+            setTimeout(() => {
+                terminal.style.transform = 'scale(1)';
+                terminal.style.opacity = '1';
+                showNotification('Terminal restored! 🖥️');
+            }, 1000);
+        }
+
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+                showNotification('Fullscreen mode activated! Press ESC to exit.');
+            } else {
+                document.exitFullscreen();
+            }
+        }
+
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, m => map[m]);
+        }
+
+        function scrollToBottom() {
+            terminalBody.scrollTop = terminalBody.scrollHeight;
+        }
+
+        // Special key combinations
+        let ctrlPressed = false;
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Control') ctrlPressed = true;
+            
+            // Ctrl+L to clear
+            if (ctrlPressed && e.key === 'l') {
+                e.preventDefault();
+                clearTerminal();
+            }
+            
+            // Ctrl+C to cancel
+            if (ctrlPressed && e.key === 'c') {
+                e.preventDefault();
+                addResponse('^C', 'error');
+                commandInput.value = '';
+            }
+        });
+
+        document.addEventListener('keyup', (e) => {
+            if (e.key === 'Control') ctrlPressed = false;
+        });
+
+        // Easter egg: Type "glitch" three times
+        let glitchCount = 0;
+        setInterval(() => {
+            if (commandHistory.slice(-3).filter(cmd => cmd.toLowerCase() === 'glitch').length === 3) {
+                if (glitchCount === 0) {
+                    glitchCount++;
+                    terminal.classList.add('glitch');
+                    addResponse('SYSTEM ERROR: REALITY.EXE HAS STOPPED WORKING', 'error glitch');
+                    setTimeout(() => {
+                        terminal.classList.remove('glitch');
+                        addResponse('System restored. Or is it? 👁️', 'system');
+                    }, 3000);
+                }
+            }
+        }, 1000);
+
+        // Random glitch effect
+        setInterval(() => {
+            if (Math.random() > 0.995 && neoMode) {
+                terminal.classList.add('glitch');
+                setTimeout(() => terminal.classList.remove('glitch'), 100);
+            }
+        }, 1000);
+
+        // Initialize
+        commandInput.focus();
+        
+        // Add initial typing animation
+        setTimeout(() => {
+            const welcomeMsg = "Ready to explore? Try chatting with me or discover hidden commands!";
+            let i = 0;
+            const typeInterval = setInterval(() => {
+                if (i < welcomeMsg.length) {
+                    commandInput.placeholder = welcomeMsg.substring(0, i + 1) + '_';
+                    i++;
+                } else {
+                    clearInterval(typeInterval);
+                    commandInput.placeholder = "Type your message or command...";
+                }
+            }, 50);
+        }, 2000);
+
+        // Window resize handler
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+
+        // Secret: Triple click for rainbow mode
+        let clickCount = 0;
+        let clickTimer;
+        terminal.addEventListener('click', () => {
+            clickCount++;
+            
+            if (clickCount === 3) {
+                document.body.style.filter = 'hue-rotate(180deg)';
+                addResponse('🌈 RAINBOW MODE ACTIVATED! Triple click again to disable.', 'rainbow');
+                clickCount = 0;
+            } else if (clickCount === 6) {
+                document.body.style.filter = 'none';
+                addResponse('Rainbow mode deactivated.', 'system');
+                clickCount = 0;
+            }
+            
+            clearTimeout(clickTimer);
+            clickTimer = setTimeout(() => {
+                clickCount = 0;
+            }, 500);
+        });
+
+        // Add breathing effect to cursor
+        setInterval(() => {
+            const cursor = document.querySelector('.cursor');
+            if (cursor && !commandInput.value) {
+                cursor.style.opacity = '1';
+            }
+        }, 1000);
+
+        // Log ASCII art on console for developers
+        console.log('%c' + `
+ █████╗ ██╗    ████████╗███████╗██████╗ ███╗   ███╗██╗███╗   ██╗ █████╗ ██╗     
+██╔══██╗██║    ╚══██╔══╝██╔════╝██╔══██╗████╗ ████║██║████╗  ██║██╔══██╗██║     
+███████║██║       ██║   █████╗  ██████╔╝██╔████╔██║██║██╔██╗ ██║███████║██║     
+██╔══██║██║       ██║   ██╔══╝  ██╔══██╗██║╚██╔╝██║██║██║╚██╗██║██╔══██║██║     
+██║  ██║██║       ██║   ███████╗██║  ██║██║ ╚═╝ ██║██║██║ ╚████║██║  ██║███████╗
+╚═╝  ╚═╝╚═╝       ╚═╝   ╚══════╝╚═╝  ╚═╝╚═╝     ╚═╝╚═╝╚═╝  ╚═══╝╚═╝  ╚═╝╚══════╝
+
+Hey developer! Looking for more secrets? Try these in the terminal:
+- Konami Code (↑↑↓↓←→←→BA)
+- Type 'glitch' three times
+- Triple click the terminal
+- Try 'sudo rm -rf /'
+- And many more hidden commands!
+
+Happy hacking! 🚀
+`, 'color: #00ff00; font-family: monospace; font-size: 10px;');
+    </script>
+</body>
+</html>

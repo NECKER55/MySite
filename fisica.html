@@ -1,0 +1,1482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Immersive 3D Environment - Andrea Veneroni</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #000000;
+            color: #ffffff;
+            overflow: hidden;
+            touch-action: none;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+        
+        /* Full-screen 3D Canvas */
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            z-index: 1;
+        }
+        
+        /* Back button */
+        .back-button {
+            position: fixed;
+            top: 30px;
+            left: 30px;
+            z-index: 100;
+            background: rgba(136, 68, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(136, 68, 255, 0.3);
+            padding: 12px 25px;
+            border-radius: 50px;
+            text-decoration: none;
+            color: #8844ff;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 5px 25px rgba(136, 68, 255, 0.2);
+            text-shadow: 0 0 10px rgba(136, 68, 255, 0.6);
+        }
+
+        .back-button:hover {
+            background: rgba(136, 68, 255, 0.2);
+            border-color: rgba(136, 68, 255, 0.5);
+            transform: translateX(-5px);
+            box-shadow: 0 8px 35px rgba(136, 68, 255, 0.4);
+            color: #b37aff;
+        }
+        
+        /* Error */
+        #error {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #ff0000;
+            font-size: 16px;
+            text-align: center;
+            max-width: 300px;
+            display: none;
+            z-index: 100;
+            text-shadow: 0 0 10px rgba(255, 0, 0, 0.8);
+        }
+
+        /* Loading Screen */
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: #000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 200;
+            transition: opacity 0.5s ease;
+        }
+
+        .loading-screen.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 3px solid rgba(136, 68, 255, 0.1);
+            border-top: 3px solid #8844ff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            color: #8844ff;
+            font-size: 1.2rem;
+            text-shadow: 0 0 10px rgba(136, 68, 255, 0.6);
+        }
+
+        /* Common styles for all info panels */
+        .info-panel-common {
+            position: fixed;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(136, 68, 255, 0.4);
+            border-radius: 15px;
+            padding: 20px 30px;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.4), inset 0 0 15px rgba(136, 68, 255, 0.1);
+            color: #ffffff;
+            text-shadow: 0 0 10px rgba(136, 68, 255, 0.4);
+            z-index: 50;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            transition: all 0.3s ease-in-out;
+        }
+
+        .info-panel-common .icon {
+            font-size: 2.5em;
+            color: #8844ff;
+            margin-bottom: 15px;
+            text-shadow: 0 0 20px rgba(136, 68, 255, 0.8);
+        }
+        
+        .info-panel-common h3, .info-panel-common h4 {
+            font-size: 1.6rem;
+            margin-bottom: 10px;
+            color: #8844ff;
+            text-shadow: 0 0 15px rgba(136, 68, 255, 0.6);
+        }
+
+        .info-panel-common p {
+            font-size: 0.95rem;
+            line-height: 1.5;
+            color: #ddd;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+        
+        .info-panel-common:hover {
+            border-color: rgba(136, 68, 255, 0.6);
+            box-shadow: 0 8px 35px rgba(136, 68, 255, 0.4), inset 0 0 20px rgba(136, 68, 255, 0.2);
+        }
+
+        /* Project Description Panel (Top) */
+        .project-description-panel {
+            top: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 70%;
+            max-width: 900px;
+            animation: fadeInDown 1s ease forwards;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+
+        /* Floating Link Panels (Left/Right) */
+        .floating-link-panel {
+            top: 50%;
+            transform: translateY(-50%);
+            width: 280px;
+            padding: 25px;
+            animation: fadeIn 1s ease forwards;
+        }
+        
+        .floating-link-panel.left-panel {
+            left: 30px;
+            animation-delay: 0.2s;
+        }
+
+        .floating-link-panel.right-panel {
+            right: 30px;
+            animation-delay: 0.4s;
+        }
+        
+        .floating-link-panel.right-panel:hover, .floating-link-panel.left-panel:hover {
+            transform: translateY(-50%) scale(1.03);
+        }
+
+        /* Group for GitHub and Downloads inside Right Panel */
+        .resources-group {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            width: 100%;
+            margin-top: 15px;
+        }
+
+        /* Common style for resource buttons (GitHub, Downloads) */
+        .resource-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 18px;
+            background: rgba(136, 68, 255, 0.05);
+            border-radius: 8px;
+            text-decoration: none;
+            color: #b37aff;
+            border: 1px solid rgba(136, 68, 255, 0.3);
+            transition: all 0.2s ease;
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        .resource-button:hover {
+            background: rgba(136, 68, 255, 0.15);
+            border-color: rgba(136, 68, 255, 0.5);
+            color: #ffffff;
+            transform: translateY(-2px);
+            box-shadow: 0 2px 10px rgba(136, 68, 255, 0.3);
+        }
+
+        /* Specific for download buttons within the resources group */
+        .download-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            width: 100%;
+        }
+
+        /* Controls hint */
+        .controls-hint {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(136, 68, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(136, 68, 255, 0.2);
+            padding: 15px 30px;
+            border-radius: 50px;
+            z-index: 10;
+            text-align: center;
+            opacity: 0;
+            animation: fadeIn 1s ease 1s forwards;
+            text-shadow: 0 0 10px rgba(136, 68, 255, 0.4);
+        }
+        
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* Mobile Menu Toggle */
+        .mobile-menu-toggle {
+            display: none;
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: rgba(136, 68, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(136, 68, 255, 0.4);
+            border-radius: 50%;
+            z-index: 90;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 25px rgba(136, 68, 255, 0.3);
+        }
+
+        .mobile-menu-toggle:active {
+            transform: scale(0.95);
+        }
+
+        .mobile-menu-toggle i {
+            font-size: 1.5rem;
+            color: #8844ff;
+            text-shadow: 0 0 10px rgba(136, 68, 255, 0.8);
+        }
+
+        /* Mobile Info Overlay */
+        .mobile-info-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(20px);
+            z-index: 95;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            padding: 80px 20px 30px;
+            opacity: 0;
+            transform: translateY(100%);
+            transition: all 0.4s ease;
+        }
+
+        .mobile-info-overlay.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .mobile-info-overlay .close-overlay {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 40px;
+            height: 40px;
+            background: rgba(136, 68, 255, 0.2);
+            border: 1px solid rgba(136, 68, 255, 0.4);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .mobile-info-overlay .close-overlay i {
+            color: #8844ff;
+            font-size: 1.2rem;
+        }
+
+        .mobile-info-content {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .mobile-info-section {
+            background: rgba(136, 68, 255, 0.05);
+            border: 1px solid rgba(136, 68, 255, 0.2);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .mobile-info-section .icon {
+            font-size: 2.5rem;
+            color: #8844ff;
+            margin-bottom: 15px;
+            display: block;
+            text-shadow: 0 0 20px rgba(136, 68, 255, 0.8);
+        }
+
+        .mobile-info-section h3 {
+            font-size: 1.5rem;
+            color: #8844ff;
+            margin-bottom: 15px;
+            text-shadow: 0 0 15px rgba(136, 68, 255, 0.6);
+        }
+
+        .mobile-info-section p {
+            font-size: 1rem;
+            line-height: 1.6;
+            color: #ddd;
+            margin-bottom: 20px;
+        }
+
+        /* Touch gesture indicator */
+        .touch-indicator {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 80;
+            pointer-events: none;
+            opacity: 0;
+            animation: touchPulse 2s ease-in-out;
+        }
+
+        @keyframes touchPulse {
+            0%, 100% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+            50% { opacity: 0.8; transform: translate(-50%, -50%) scale(1.2); }
+        }
+
+        .touch-indicator .gesture-icon {
+            width: 80px;
+            height: 80px;
+            background: rgba(136, 68, 255, 0.2);
+            border: 2px solid rgba(136, 68, 255, 0.6);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 30px rgba(136, 68, 255, 0.5);
+        }
+
+        .touch-indicator i {
+            font-size: 2rem;
+            color: #8844ff;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 1200px) {
+            .project-description-panel {
+                width: 90%;
+                padding: 15px 20px;
+            }
+            .project-description-panel .icon {
+                font-size: 2em;
+            }
+            .project-description-panel h3 {
+                font-size: 1.4rem;
+            }
+            .project-description-panel p {
+                font-size: 0.85rem;
+            }
+
+            .floating-link-panel {
+                width: 250px;
+                                padding: 20px;
+            }
+            .floating-link-panel.left-panel {
+                left: 15px;
+            }
+            .floating-link-panel.right-panel {
+                right: 15px;
+            }
+            .floating-link-panel h4 {
+                font-size: 1.3rem;
+            }
+            .floating-link-panel .icon {
+                font-size: 2em;
+            }
+            .resource-button {
+                font-size: 0.9rem;
+                padding: 10px 15px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            /* Hide desktop panels on mobile */
+            .project-description-panel,
+            .floating-link-panel,
+            .controls-hint {
+                display: none !important;
+            }
+
+            /* Show mobile menu toggle */
+            .mobile-menu-toggle {
+                display: flex;
+            }
+
+            /* Show touch indicator on mobile */
+            .touch-indicator {
+                display: block;
+            }
+
+            .back-button {
+                top: 15px;
+                left: 15px;
+                padding: 10px 20px;
+                font-size: 0.9rem;
+                position: absolute;
+            }
+
+            /* Mobile-specific info overlay */
+            .mobile-info-overlay {
+                display: block;
+            }
+
+            /* Adjust canvas for mobile */
+            #canvas-container {
+                touch-action: pan-y pinch-zoom;
+            }
+
+            /* Mobile loading screen adjustments */
+            .loading-spinner {
+                width: 50px;
+                height: 50px;
+            }
+
+            .loading-text {
+                font-size: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .mobile-info-section {
+                padding: 20px;
+            }
+
+            .mobile-info-section h3 {
+                font-size: 1.3rem;
+            }
+
+            .mobile-info-section p {
+                font-size: 0.9rem;
+            }
+
+            .resource-button {
+                font-size: 0.85rem;
+                padding: 10px 12px;
+            }
+        }
+
+        /* Landscape mobile adjustments */
+        @media (max-height: 600px) and (orientation: landscape) {
+            .mobile-menu-toggle {
+                bottom: 15px;
+                right: 15px;
+                width: 50px;
+                height: 50px;
+            }
+
+            .back-button {
+                top: 10px;
+                left: 10px;
+                padding: 8px 16px;
+                font-size: 0.85rem;
+            }
+
+            .mobile-info-overlay {
+                padding: 60px 20px 20px;
+            }
+
+            .mobile-info-section {
+                padding: 15px;
+                margin-bottom: 15px;
+            }
+
+            .mobile-info-section h3 {
+                font-size: 1.2rem;
+                margin-bottom: 10px;
+            }
+
+            .mobile-info-section p {
+                font-size: 0.85rem;
+                margin-bottom: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div class="loading-screen" id="loadingScreen">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Loading 3D Environment...</div>
+    </div>
+
+    <!-- Back Button -->
+    <a href="index.html" class="back-button">
+        <span>←</span> Back to Portfolio
+    </a>
+    
+    <!-- 3D Canvas Container -->
+    <div id="canvas-container"></div>
+    
+    <!-- Error Display -->
+    <div id="error"></div>
+    
+    <!-- Desktop Info Panels -->
+    <div class="project-description-panel info-panel-common">
+        <h3>Physics Simulation Project</h3>
+        <p>This project features a highly accurate physics simulation of the Solar System, showcasing planets and major moons orbiting dynamically. The simulation initiates from January 1, 2000, and faithfully reproduces the orbital variations of each celestial body over time. Additionally, users can launch an asteroid and observe its trajectory influenced by the gravitational forces of the celestial bodies.</p>
+    </div>
+
+    <div class="floating-link-panel left-panel info-panel-common">
+        <span class="icon"><i class="fas fa-rocket"></i></span>
+        <h4>Development Journey</h4>
+        <p>This immersive simulation project was meticulously crafted from the ground up in just one month, a testament to rapid development and dedicated execution. For an in-depth exploration of its intricate details, underlying design, and the complete development journey, we invite you to delve into the comprehensive GitHub repository.</p>
+    </div>
+
+    <div class="floating-link-panel right-panel info-panel-common">
+        <span class="icon"><i class="fas fa-code-branch"></i></span>
+        <h4>Project Resources</h4>
+        <div class="resources-group">
+            <a href="https://github.com/NECKER55/solar_system.git" target="_blank" class="resource-button">
+                <span class="icon"><i class="fab fa-github"></i></span> GitHub Repository
+            </a>
+            <div class="download-buttons">
+                <a href="https://github.com/NECKER55/solar_system/releases/tag/v1.0-windows" class="resource-button"><i class="fab fa-windows"></i> Windows Executable</a>
+                <a href="https://github.com/NECKER55/solar_system/releases/tag/v1.0-linux" class="resource-button"><i class="fab fa-linux"></i> Linux Executable</a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Desktop Controls Hint -->
+    <div class="controls-hint">
+        🖱️ Use mouse to rotate view • Scroll to zoom
+    </div>
+
+    <!-- Mobile Menu Toggle -->
+    <div class="mobile-menu-toggle" id="mobileMenuToggle">
+        <i class="fas fa-info-circle"></i>
+    </div>
+
+    <!-- Mobile Info Overlay -->
+    <div class="mobile-info-overlay" id="mobileInfoOverlay">
+        <div class="close-overlay" id="closeOverlay">
+            <i class="fas fa-times"></i>
+        </div>
+        <div class="mobile-info-content">
+            <div class="mobile-info-section">
+                <span class="icon"><i class="fas fa-globe"></i></span>
+                <h3>Physics Simulation Project</h3>
+                <p>This project features a highly accurate physics simulation of the Solar System, showcasing planets and major moons orbiting dynamically. The simulation initiates from January 1, 2000, and faithfully reproduces the orbital variations of each celestial body over time.</p>
+            </div>
+
+            <div class="mobile-info-section">
+                <span class="icon"><i class="fas fa-rocket"></i></span>
+                <h3>Development Journey</h3>
+                <p>This immersive simulation project was meticulously crafted from the ground up in just one month, a testament to rapid development and dedicated execution.</p>
+            </div>
+
+            <div class="mobile-info-section">
+                <span class="icon"><i class="fas fa-code-branch"></i></span>
+                <h3>Project Resources</h3>
+                <div class="resources-group">
+                    <a href="https://github.com/NECKER55/solar_system.git" target="_blank" class="resource-button">
+                        <i class="fab fa-github"></i> GitHub Repository
+                    </a>
+                    <div class="download-buttons">
+                        <a href="https://github.com/NECKER55/solar_system/releases/tag/v1.0-windows" class="resource-button">
+                            <i class="fab fa-windows"></i> Windows
+                        </a>
+                        <a href="https://github.com/NECKER55/solar_system/releases/tag/v1.0-linux" class="resource-button">
+                            <i class="fab fa-linux"></i> Linux
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Touch Gesture Indicator -->
+    <div class="touch-indicator" id="touchIndicator">
+        <div class="gesture-icon">
+            <i class="fas fa-hand-pointer"></i>
+        </div>
+    </div>
+
+    <!-- Three.js Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    
+    <script>
+        // Global Three.js variables
+        let scene, camera, renderer, controls;
+        let earth, moon, moonOrbitGroup, earthAtmosphere;
+        let earthContainer, moonContainer;
+        const container = document.getElementById('canvas-container');
+        const errorElement = document.getElementById('error');
+        const loadingScreen = document.getElementById('loadingScreen');
+
+        // Mobile detection
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+
+        // Texture file URLs
+        const earthAlbedoUrl = 'earth_albedo.jpg';
+        const earthBumpUrl = 'earth_bump.jpg';
+        const moonAlbedoUrl = 'moon_albedo.jpg';
+        const moonDisplacementUrl = 'moon_displacement.jpg';
+        
+        // Earth-Moon system parameters
+        const EARTH_RADIUS = 50;
+        const MOON_RADIUS = EARTH_RADIUS * 0.273;
+        const MOON_DISTANCE = EARTH_RADIUS * 5;
+        const EARTH_ROTATION_SPEED = -0.002;
+        const MOON_ORBIT_SPEED = 0.006;
+
+        // Loading counter
+        let loadingProgress = {
+            total: 4,
+            loaded: 0
+        };
+
+        // Materialization states
+        let materialization = {
+            earth: { progress: 0, active: false },
+            moon: { progress: 0, active: false },
+            atmosphere: { progress: 0, active: false }
+        };
+
+        // Mobile menu handling
+        if (isMobile) {
+            const menuToggle = document.getElementById('mobileMenuToggle');
+            const infoOverlay = document.getElementById('mobileInfoOverlay');
+            const closeOverlay = document.getElementById('closeOverlay');
+            const backButton = document.querySelector('.back-button'); // Aggiungi questa riga
+
+            menuToggle.addEventListener('click', () => {
+                infoOverlay.classList.add('active');
+                backButton.style.display = 'none'; // Nascondi il pulsante back
+            });
+
+            closeOverlay.addEventListener('click', () => {
+                infoOverlay.classList.remove('active');
+                backButton.style.display = 'flex'; // Mostra di nuovo il pulsante back
+            });
+
+            // Show touch indicator on first load
+            setTimeout(() => {
+                const touchIndicator = document.getElementById('touchIndicator');
+                touchIndicator.style.opacity = '1';
+                setTimeout(() => {
+                    touchIndicator.style.opacity = '0';
+                }, 3000);
+            }, 2000);
+        }
+
+        // Initialization
+        function init() {
+            // Create scene
+            scene = new THREE.Scene();
+            
+            // Create camera
+            camera = new THREE.PerspectiveCamera(
+                isMobile ? 60 : 75,
+                window.innerWidth / window.innerHeight,
+                0.5,
+                5000
+            );
+            camera.position.set(150, 100, 200);
+            
+            // Create renderer
+            renderer = new THREE.WebGLRenderer({ 
+                antialias: !isMobile,
+                alpha: false,
+                powerPreference: isMobile ? "low-power" : "high-performance"
+            });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, isMobile ? 2 : 3));
+            renderer.toneMapping = THREE.ACESFilmicToneMapping;
+            renderer.toneMappingExposure = 0.8;
+            renderer.shadowMap.enabled = !isMobile;
+            if (!isMobile) {
+                renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            }
+            container.appendChild(renderer.domElement);
+
+            // Lighting setup
+            setupLighting();
+
+            // Orbital controls
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = isMobile ? 0.25 : 0.05; // Aumentato per mobile
+            controls.enableZoom = true; // Assicurati che sia abilitato
+            controls.zoomSpeed = isMobile ? 1.0 : 1.2; // Velocità zoom appropriata
+            controls.minDistance = isMobile ? 120 : 100;
+            controls.maxDistance = isMobile ? 350 : 400;
+            controls.maxPolarAngle = Math.PI / 2 - 0.1;
+            controls.target.set(0, 2, 0);
+            controls.enablePan = !isMobile;
+
+            if (isMobile) {
+                controls.rotateSpeed = 0.5;
+                controls.zoomSpeed = 0.8;
+            }
+
+            // Set mouse buttons for rotation and zoom
+            controls.mouseButtons = {
+                LEFT: THREE.MOUSE.ROTATE,
+                MIDDLE: THREE.MOUSE.DOLLY,
+                RIGHT: THREE.MOUSE.ROTATE
+            };
+
+            // Touch controls for mobile
+            if (isTouch) {
+                controls.touches = {
+                    ONE: THREE.TOUCH.ROTATE,
+                    TWO: THREE.TOUCH.DOLLY_PAN
+                };
+            }
+            
+            // Create starfield background
+            createStarField();
+            
+            // Create planets with textures
+            createPlanets();
+
+            // Window resize handling
+            window.addEventListener('resize', onWindowResize, false);
+
+            // Start animation
+            animate();
+        }
+
+        // Update loading progress
+        function updateLoadingProgress() {
+            loadingProgress.loaded++;
+            
+            if (loadingProgress.loaded >= loadingProgress.total) {
+                // Hide loading screen
+                setTimeout(() => {
+                    loadingScreen.classList.add('hidden');
+                    setTimeout(() => {
+                        loadingScreen.style.display = 'none';
+                    }, 500);
+                }, 500);
+
+                // Start materialization
+                setTimeout(() => {
+                    materialization.earth.active = true;
+                    
+                    setTimeout(() => {
+                        materialization.moon.active = true;
+                    }, 2000);
+                }, 100);
+            }
+        }
+
+        // Setup lighting
+        function setupLighting() {
+            const ambientLight = new THREE.AmbientLight(0x333366, isMobile ? 0.85 : 0.1);
+            scene.add(ambientLight);
+
+            // Warmer light to simulate the sun
+            const sunLight = new THREE.DirectionalLight(0xFFDDAA, isMobile ? 2.2 : 1.5); 
+            const angle = 30 * Math.PI / 180;
+            const distance = 300;
+            sunLight.position.set(
+                -Math.cos(angle) * distance,
+                50,
+                Math.sin(angle) * distance
+            );
+            
+            if (!isMobile) {
+                sunLight.castShadow = true;
+                sunLight.shadow.mapSize.width = 2048;
+                sunLight.shadow.mapSize.height = 2048;
+                sunLight.shadow.camera.near = 0.5;
+                sunLight.shadow.camera.far = 500;
+                sunLight.shadow.camera.left = -150;
+                sunLight.shadow.camera.right = 150;
+                sunLight.shadow.camera.top = 150;
+                sunLight.shadow.camera.bottom = -150;
+            }
+            scene.add(sunLight);
+        }
+
+        // Create procedural starfield
+        function createStarField() {
+            const starGroups = isMobile ? 
+                [
+                    { count: 5000, size: 3.0, color: 0xffffff, spread: 2000 },
+                    { count: 1500, size: 3.0, color: 0xffffcc, spread: 1500 }
+                ] :
+                [
+                    { count: 10000, size: 3.0, color: 0xffffff, spread: 2000 },
+                    { count: 3000, size: 3.0, color: 0xffffcc, spread: 1500 },
+                    { count: 1000, size: 3.5, color: 0xccccff, spread: 1800 },
+                    { count: 500, size: 4.0, color: 0xffcccc, spread: 1600 }
+                ];
+            
+            starGroups.forEach(group => {
+                const geometry = new THREE.BufferGeometry();
+                const positions = [];
+                const colors = [];
+                const sizes = [];
+                
+                const color = new THREE.Color(group.color);
+                
+                for (let i = 0; i < group.count; i++) {
+                    const radius = group.spread;
+                    const theta = Math.random() * 2 * Math.PI;
+                    const phi = Math.acos(2 * Math.random() - 1);
+                    
+                    const x = radius * Math.sin(phi) * Math.cos(theta);
+                    const y = radius * Math.sin(phi) * Math.sin(theta);
+                    const z = radius * Math.cos(phi);
+                    
+                    positions.push(x, y, z);
+                    
+                    const intensity = 0.5 + Math.random() * 0.5;
+                    colors.push(color.r * intensity, color.g * intensity, color.b * intensity);
+                    
+                    sizes.push(group.size * (0.5 + Math.random()));
+                }
+                
+                geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+                geometry.setAttribute('aColor', new THREE.Float32BufferAttribute(colors, 3)); 
+                geometry.setAttribute('size', new THREE.Float32BufferAttribute(sizes, 1));
+                
+                const material = new THREE.ShaderMaterial({
+                    uniforms: {
+                        time: { value: 0 }
+                    },
+                    vertexShader: `
+                        attribute float size;
+                        attribute vec3 aColor; 
+                        varying vec3 vCustomColor; 
+                        varying float vSize;
+                        
+                        void main() {
+                            vCustomColor = aColor; 
+                            vSize = size;
+                            vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+                            gl_PointSize = size * (1000.0 / -mvPosition.z);
+                            gl_Position = projectionMatrix * mvPosition;
+                        }
+                    `,
+                    fragmentShader: `
+                        uniform float time;
+                        varying vec3 vCustomColor; 
+                        varying float vSize;
+                        
+                        void main() {
+                            float dist = distance(gl_PointCoord, vec2(0.5));
+                            if (dist > 0.5) discard;
+                            
+                            float twinkle = sin(time * (3.0 + vSize)) * 0.1 + 0.9;
+                            
+                            float intensity = 1.0 - smoothstep(0.0, 0.5, dist);
+                            intensity = pow(intensity, 2.0);
+                            
+                            gl_FragColor = vec4(vCustomColor * twinkle, intensity); 
+                        }
+                    `,
+                    blending: THREE.AdditiveBlending,
+                    depthWrite: false,
+                    transparent: true,
+                    vertexColors: true
+                });
+                
+                const starField = new THREE.Points(geometry, material);
+                starField.name = 'starField_' + group.size;
+                scene.add(starField);
+            });
+            
+            if (!isMobile) {
+                createNebula();
+            }
+        }
+        
+        // Create nebula effect
+        function createNebula() {
+            for (let i = 0; i < 3; i++) {
+                const geometry = new THREE.SphereGeometry(200, 32, 32);
+                const material = new THREE.ShaderMaterial({
+                    uniforms: {
+                        time: { value: 0 },
+                        color1: { value: new THREE.Color(0x6600ff) },
+                        color2: { value: new THREE.Color(0xff0066) }
+                    },
+                    vertexShader: `
+                        varying vec3 vPosition;
+                        void main() {
+                            vPosition = position;
+                            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+                        }
+                    `,
+                    fragmentShader: `
+                        uniform float time;
+                        uniform vec3 color1;
+                        uniform vec3 color2;
+                        varying vec3 vPosition;
+                        
+                        float noise(vec3 p) {
+                            return sin(p.x * 0.01) * sin(p.y * 0.01) * sin(p.z * 0.01);
+                        }
+                        
+                        void main() {
+                            float n = noise(vPosition + time * 0.1);
+                            vec3 color = mix(color1, color2, n * 0.5 + 0.5);
+                            float alpha = 0.03 * (1.0 + n);
+                            gl_FragColor = vec4(color, alpha);
+                        }
+                    `,
+                    transparent: true,
+                    blending: THREE.AdditiveBlending,
+                    side: THREE.BackSide,
+                    depthWrite: false
+                });
+                
+                const nebula = new THREE.Mesh(geometry, material);
+                nebula.position.set(
+                    (Math.random() - 0.5) * 3000,
+                    (Math.random() - 0.5) * 1000,
+                    -1500 - Math.random() * 1000
+                );
+                nebula.scale.set(1 + Math.random(), 1 + Math.random(), 1 + Math.random());
+                nebula.name = 'nebula_' + i;
+                scene.add(nebula);
+            }
+        }
+
+        // Creating planets with textures
+        function createPlanets() {
+            const textureLoader = new THREE.TextureLoader();
+
+            // Container for Earth
+            earthContainer = new THREE.Group();
+            scene.add(earthContainer);
+
+            // Create Earth
+            const earthGeometry = new THREE.SphereGeometry(EARTH_RADIUS, isMobile ? 64 : 128, isMobile ? 64 : 128);
+            
+            const earthAlbedoTexture = textureLoader.load(
+                earthAlbedoUrl,
+                function() { updateLoadingProgress(); },
+                undefined,
+                function() {
+                    console.warn('Error loading Earth albedo texture');
+                    errorElement.textContent = "Error loading Earth albedo texture. Check the path.";
+                    errorElement.style.display = 'block';
+                    updateLoadingProgress();
+                }
+            );
+            
+            const earthBumpTexture = textureLoader.load(
+                earthBumpUrl,
+                function() { updateLoadingProgress(); },
+                undefined,
+                function() {
+                    console.warn('Error loading Earth bump texture');
+                    errorElement.textContent = "Error loading Earth bump texture. Check the path.";
+                    errorElement.style.display = 'block';
+                    updateLoadingProgress();
+                }
+            );
+
+            earthAlbedoTexture.anisotropy = renderer.capabilities.getMaxAnisotropy();
+            earthBumpTexture.anisotropy = renderer.capabilities.getMaxAnisotropy();
+
+            const earthMaterial = new THREE.MeshPhongMaterial({
+                map: earthAlbedoTexture,
+                bumpMap: earthBumpTexture,
+                bumpScale: isMobile ? 1 : 2,
+                shininess: 20,
+                specular: new THREE.Color(0x333333)
+            });
+
+            earth = new THREE.Mesh(earthGeometry, earthMaterial);
+            earth.castShadow = !isMobile;
+            earth.receiveShadow = !isMobile;
+            earth.position.set(0, 0, 0);
+            
+            earthContainer.add(earth);
+            
+            earth.material.transparent = true;
+            earth.material.opacity = 0;
+            earth.scale.set(0.01, 0.01, 0.01);
+
+            createEarthAtmosphere();
+
+            // Create group for moon orbit
+            moonOrbitGroup = new THREE.Group();
+            scene.add(moonOrbitGroup);
+
+            // Create Moon
+            const moonGeometry = new THREE.SphereGeometry(MOON_RADIUS, isMobile ? 32 : 64, isMobile ? 32 : 64);
+            
+            const moonAlbedoTexture = textureLoader.load(
+                moonAlbedoUrl,
+                function() { updateLoadingProgress(); },
+                undefined,
+                function() {
+                    console.warn('Error loading Moon albedo texture');
+                    errorElement.textContent = "Error loading Moon albedo texture. Check the path.";
+                    errorElement.style.display = 'block';
+                    updateLoadingProgress();
+                }
+            );
+            
+            const moonDisplacementTexture = textureLoader.load(
+                moonDisplacementUrl,
+                function() { updateLoadingProgress(); },
+                undefined,
+                function() {
+                    console.warn('Error loading Moon displacement texture');
+                    errorElement.textContent = "Error loading Moon displacement texture. Check the path.";
+                    errorElement.style.display = 'block';
+                    updateLoadingProgress();
+                }
+            );
+
+            moonAlbedoTexture.anisotropy = renderer.capabilities.getMaxAnisotropy();
+            moonDisplacementTexture.anisotropy = renderer.capabilities.getMaxAnisotropy();
+
+            const moonMaterial = new THREE.MeshPhongMaterial({
+                map: moonAlbedoTexture,
+                displacementMap: moonDisplacementTexture,
+                displacementScale: isMobile ? 1 : 2,
+                shininess: 5,
+                color: 0xffffff
+            });
+
+            moon = new THREE.Mesh(moonGeometry, moonMaterial);
+            moon.castShadow = !isMobile;
+            moon.receiveShadow = !isMobile;
+            moon.position.set(MOON_DISTANCE, 0, 0);
+            
+            moon.material.transparent = true;
+            moon.material.opacity = 0;
+            moon.scale.set(0.01, 0.01, 0.01);
+            
+            moonOrbitGroup.add(moon);
+
+            // Orbital ring
+            const orbitGeometry = new THREE.RingGeometry(MOON_DISTANCE - 1, MOON_DISTANCE + 1, 64);
+            const orbitMaterial = new THREE.MeshBasicMaterial({
+                color: 0x8844ff,
+                opacity: 0,
+                transparent: true,
+                side: THREE.DoubleSide
+            });
+            const orbitRing = new THREE.Mesh(orbitGeometry, orbitMaterial);
+            orbitRing.rotation.x = Math.PI / 2;
+            orbitRing.name = 'orbitRing';
+            scene.add(orbitRing);
+        }
+
+        // Create Earth atmosphere
+        function createEarthAtmosphere() {
+            const atmosphereGeometry = new THREE.SphereGeometry(EARTH_RADIUS * 1.15, isMobile ? 32 : 64, isMobile ? 32 : 64);
+            const atmosphereMaterial = new THREE.ShaderMaterial({
+                uniforms: {
+                    opacity: { value: 0 }
+                },
+                vertexShader: `
+                    varying vec3 vNormal;
+                    varying vec3 vPosition;
+                    void main() {
+                        vNormal = normalize(normalMatrix * normal);
+                        vPosition = position;
+                        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+                    }
+                `,
+                fragmentShader: `
+                    varying vec3 vNormal;
+                    varying vec3 vPosition;
+                    uniform float opacity;
+                    void main() {
+                        float intensity = pow(0.65 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 2.0);
+                        vec3 atmosphere = vec3(0.3, 0.6, 1.0) * intensity;
+                        gl_FragColor = vec4(atmosphere, intensity * 0.8 * opacity);
+                    }
+                `,
+                blending: THREE.AdditiveBlending,
+                side: THREE.BackSide,
+                transparent: true,
+                depthWrite: false
+            });
+            earthAtmosphere = new THREE.Mesh(atmosphereGeometry, atmosphereMaterial);
+            earthAtmosphere.position.copy(earth.position);
+            earthContainer.add(earthAtmosphere);
+            
+            earthAtmosphere.visible = false;
+        }
+
+        // Handle window resize
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        // Animation loop
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            handleMaterialization();
+            
+            if (earth) {
+                earth.rotation.y += EARTH_ROTATION_SPEED;
+            }
+            
+            if (earthAtmosphere) {
+                earthAtmosphere.rotation.y += EARTH_ROTATION_SPEED * 0.9;
+            }
+            
+            if (moonOrbitGroup) {
+                moonOrbitGroup.rotation.y += MOON_ORBIT_SPEED;
+            }
+            
+            if (moon) {
+                moon.rotation.y += MOON_ORBIT_SPEED;
+            }
+            
+            controls.update();
+            
+            renderer.render(scene, camera);
+        }
+
+        // Handle materialization effects
+        function handleMaterialization() {
+            // Earth materialization
+            if (materialization.earth.active && materialization.earth.progress < 1) {
+                materialization.earth.progress += 0.015;
+                const progress = easeOutCubic(materialization.earth.progress);
+                
+                if (earth) {
+                    earth.material.opacity = progress;
+                    const scale = 0.01 + (0.99 * progress);
+                    earth.scale.set(scale, scale, scale);
+                    
+                    if (!isMobile && Math.random() < 0.8) {
+                        for (let i = 0; i < 3; i++) {
+                            createMaterializationParticle(earth.position, 0x8844ff, EARTH_RADIUS);
+                        }
+                    }
+                    
+                    if (materialization.earth.progress > 0.9 && !materialization.atmosphere.active) {
+                        materialization.atmosphere.active = true;
+                    }
+                }
+            }
+            
+            // Moon materialization
+            if (materialization.moon.active && materialization.moon.progress < 1) {
+                materialization.moon.progress += 0.015;
+                const progress = easeOutCubic(materialization.moon.progress);
+                
+                if (moon) {
+                    moon.material.opacity = progress;
+                    const scale = 0.01 + (0.99 * progress);
+                    moon.scale.set(scale, scale, scale);
+                    
+                    if (!isMobile && Math.random() < 0.7) {
+                        for (let i = 0; i < 2; i++) {
+                            const worldPos = new THREE.Vector3();
+                            moon.getWorldPosition(worldPos);
+                            createMaterializationParticle(worldPos, 0xffffaa, MOON_RADIUS);
+                        }
+                    }
+                }
+                
+                const orbitRing = scene.getObjectByName('orbitRing');
+                if (orbitRing) {
+                    orbitRing.material.opacity = progress * 0.1;
+                }
+            }
+            
+            // Atmosphere materialization
+            if (materialization.atmosphere.active && materialization.atmosphere.progress < 1) {
+                materialization.atmosphere.progress += 0.01;
+                const progress = easeOutCubic(materialization.atmosphere.progress);
+                
+                if (earthAtmosphere) {
+                    if (!earthAtmosphere.visible) {
+                        earthAtmosphere.visible = true;
+                    }
+                    earthAtmosphere.material.uniforms.opacity.value = progress;
+                }
+            }
+            
+            // Update stars and nebulae
+            scene.children.forEach(child => {
+                if (child.name && child.name.startsWith('starField_')) {
+                    child.material.uniforms.time.value += 0.01;
+                }
+                if (child.name && child.name.startsWith('nebula_')) {
+                    child.material.uniforms.time.value += 0.005;
+                }
+            });
+        }
+        
+        // Easing function
+        function easeOutCubic(t) {
+            return 1 - Math.pow(1 - t, 3);
+        }
+        
+        // Create particles for materialization effect
+        function createMaterializationParticle(position, color, objectRadius) {
+            const geometry = new THREE.SphereGeometry(0.5 + Math.random() * 0.5, 8, 8);
+            const material = new THREE.MeshBasicMaterial({
+                color: color,
+                transparent: true,
+                opacity: 1
+            });
+            const particle = new THREE.Mesh(geometry, material);
+            
+            const angle = Math.random() * Math.PI * 2;
+            const angleY = (Math.random() - 0.5) * Math.PI;
+            const radius = objectRadius * (1.5 + Math.random() * 1.5);
+            
+            particle.position.x = position.x + Math.cos(angle) * Math.cos(angleY) * radius;
+            particle.position.y = position.y + Math.sin(angleY) * radius;
+            particle.position.z = position.z + Math.sin(angle) * Math.cos(angleY) * radius;
+            
+            // Add luminous halo
+            const glowGeometry = new THREE.SphereGeometry(2, 8, 8);
+            const glowMaterial = new THREE.MeshBasicMaterial({
+                color: color,
+                transparent: true,
+                opacity: 0.3,
+                blending: THREE.AdditiveBlending
+            });
+            const glow = new THREE.Mesh(glowGeometry, glowMaterial);
+            particle.add(glow);
+            
+            scene.add(particle);
+            
+            // Animate the particle
+            const startPos = particle.position.clone();
+            const targetPos = position.clone();
+            let progress = 0;
+            const rotationSpeed = Math.random() * 0.1 + 0.05;
+            
+            const animateParticle = () => {
+                progress += 0.02;
+                if (progress >= 1) {
+                    scene.remove(particle);
+                    particle.geometry.dispose();
+                    particle.material.dispose();
+                    glow.geometry.dispose();
+                    glow.material.dispose();
+                    return;
+                }
+                
+                const eased = easeOutCubic(progress);
+                particle.position.lerpVectors(startPos, targetPos, eased);
+                
+                const currentRadius = startPos.distanceTo(targetPos) * (1 - eased);
+                particle.position.x += Math.sin(progress * Math.PI * 4) * currentRadius * 0.1;
+                particle.position.z += Math.cos(progress * Math.PI * 4) * currentRadius * 0.1;
+                
+                particle.material.opacity = 1 - progress;
+                glow.material.opacity = (1 - progress) * 0.3;
+                particle.scale.setScalar(1 - progress * 0.7);
+                
+                requestAnimationFrame(animateParticle);
+            };
+            
+            animateParticle();
+        }
+
+        // Performance monitoring for mobile
+        let lastTime = performance.now();
+        let frameCount = 0;
+        let fps = 60;
+
+        function monitorPerformance() {
+            frameCount++;
+            const currentTime = performance.now();
+            
+            if (currentTime >= lastTime + 1000) {
+                fps = Math.round((frameCount * 1000) / (currentTime - lastTime));
+                frameCount = 0;
+                lastTime = currentTime;
+                
+                // Adjust quality based on performance
+                if (isMobile && fps < 30) {
+                    // Reduce quality if performance is poor
+                    renderer.setPixelRatio(1);
+                    if (earth) earth.material.bumpScale = 0.5;
+                    if (moon) moon.material.displacementScale = 0.5;
+                }
+            }
+            
+            requestAnimationFrame(monitorPerformance);
+        }
+
+        // Touch gesture handling for mobile
+        if (isTouch) {
+            let touchStartTime = 0;
+            let lastTouchEnd = 0;
+            
+            container.addEventListener('touchstart', (e) => {
+                touchStartTime = Date.now();
+            }, { passive: true });
+        }
+
+        // Visibility change handling (for mobile battery saving)
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                // Pause expensive operations when page is hidden
+                EARTH_ROTATION_SPEED = 0;
+                MOON_ORBIT_SPEED = 0;
+            } else {
+                // Resume normal speed
+                EARTH_ROTATION_SPEED = -0.002;
+                MOON_ORBIT_SPEED = 0.006;
+            }
+        });
+
+        // Device orientation handling for mobile (optional gyroscope control)
+        if (isMobile && window.DeviceOrientationEvent) {
+            let initialOrientation = null;
+            let orientationEnabled = false;
+            
+            window.addEventListener('deviceorientation', (e) => {
+                if (!orientationEnabled) return;
+                
+                if (!initialOrientation) {
+                    initialOrientation = {
+                        alpha: e.alpha,
+                        beta: e.beta,
+                        gamma: e.gamma
+                    };
+                }
+                
+                // Subtle camera movement based on device orientation
+                const deltaAlpha = (e.alpha - initialOrientation.alpha) * 0.01;
+                const deltaBeta = (e.beta - initialOrientation.beta) * 0.01;
+                
+                camera.position.x += Math.sin(deltaAlpha) * 2;
+                camera.position.z += Math.cos(deltaAlpha) * 2;
+                camera.position.y += deltaBeta;
+                
+                camera.lookAt(controls.target);
+            });
+        }
+
+        // Initialize the application
+        init();
+        
+        // Start performance monitoring on mobile
+        if (isMobile) {
+            monitorPerformance();
+        }
+
+        // Preload check for mobile
+        if (isMobile) {
+            // Check if all resources are loaded after timeout
+            setTimeout(() => {
+                if (loadingProgress.loaded < loadingProgress.total) {
+                    loadingScreen.classList.add('hidden');
+                    errorElement.textContent = "Some resources couldn't be loaded. The experience may be limited.";
+                    errorElement.style.display = 'block';
+                    
+                    // Force start materialization anyway
+                    materialization.earth.active = true;
+                    setTimeout(() => {
+                        materialization.moon.active = true;
+                    }, 1000);
+                }
+            }, 10000); // 10 second timeout
+        }
+
+        // Clean up on page unload
+        window.addEventListener('beforeunload', () => {
+            if (renderer) {
+                renderer.dispose();
+            }
+            if (scene) {
+                scene.traverse((child) => {
+                    if (child.geometry) {
+                        child.geometry.dispose();
+                    }
+                    if (child.material) {
+                        if (Array.isArray(child.material)) {
+                            child.material.forEach(material => material.dispose());
+                        } else {
+                            child.material.dispose();
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>
+
+
+
+
+generami il codice completo con anche la versione mobile (creala tu simile ma che abbia senso)

@@ -1,0 +1,1010 @@
+
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>University Projects Selection</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #000000;
+            color: #ffffff;
+            overflow: hidden;
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        /* Background Matrix Canvas */
+        #matrix-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .back-button {
+            position: fixed;
+            top: 30px;
+            left: 30px;
+            z-index: 100;
+            background: rgba(147, 112, 219, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(147, 112, 219, 0.3);
+            padding: 12px 25px;
+            border-radius: 50px;
+            text-decoration: none;
+            color: #9370DB;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 5px 25px rgba(147, 112, 219, 0.2);
+        }
+        
+        .back-button:hover {
+            transform: translateX(-5px);
+            background: rgba(147, 112, 219, 0.2);
+            border-color: rgba(147, 112, 219, 0.5);
+        }
+        
+        /* Overlay gradient */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: radial-gradient(ellipse at center, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.7) 100%);
+            z-index: 1;
+            pointer-events: none;
+        }
+        
+        /* Main Container */
+        .main-container {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        /* Title */
+        .title {
+            position: absolute;
+            top: 50px;
+            font-size: 3rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 5px;
+            text-shadow: 0 0 30px rgba(138, 43, 226, 0.8), 
+                         0 0 60px rgba(138, 43, 226, 0.5),
+                         2px 2px 10px rgba(0,0,0,0.8);
+            opacity: 0;
+            animation: titleGlow 2s ease forwards;
+            text-align: center;
+        }
+        
+        @keyframes titleGlow {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Icons Container */
+        .icons-container {
+            display: flex;
+            gap: 80px;
+            perspective: 1000px;
+            flex-wrap: wrap;
+            justify-content: center;
+            max-width: 1200px;
+        }
+        
+        /* Icon Card */
+        .icon-card {
+            width: 200px;
+            height: 300px;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transform-style: preserve-3d;
+            opacity: 0;
+            animation: cardAppear 1s ease forwards;
+        }
+        
+        /* Link styles for icon cards */
+        .icons-container a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .icon-card:nth-child(1) { animation-delay: 0.2s; }
+        .icon-card:nth-child(2) { animation-delay: 0.4s; }
+        .icon-card:nth-child(3) { animation-delay: 0.6s; }
+        
+        @keyframes cardAppear {
+            from {
+                opacity: 0;
+                transform: translateY(50px) rotateX(45deg);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) rotateX(0);
+            }
+        }
+        
+        /* Card Content */
+        .card-content {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, 
+                rgba(138, 43, 226, 0.1) 0%, 
+                rgba(138, 43, 226, 0.05) 50%,
+                rgba(0, 0, 0, 0.3) 100%);
+            border: 2px solid rgba(138, 43, 226, 0.3);
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5),
+                        inset 0 0 30px rgba(138, 43, 226, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        /* SVG Icon */
+        .icon-svg {
+            width: 100px;
+            height: 100px;
+            margin-bottom: 20px;
+            filter: drop-shadow(0 0 20px rgba(138, 43, 226, 0.6));
+            transition: all 0.3s ease;
+        }
+        
+        .icon-svg svg {
+            width: 100%;
+            height: 100%;
+            fill: #8a2be2;
+        }
+        
+        /* Character Name */
+        .character-name {
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+            text-shadow: 0 0 15px rgba(138, 43, 226, 0.8);
+            transition: all 0.3s ease;
+        }
+        
+        /* Description */
+        .character-desc {
+            font-size: 0.9rem;
+            color: #aaa;
+            text-align: center;
+            padding: 0 20px;
+            opacity: 0.8;
+            transition: all 0.3s ease;
+        }
+
+        /* GitHub Icon */
+        .github-icon-container {
+            margin-top: 15px;
+            width: 30px;
+            height: 30px;
+            filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.5));
+            transition: transform 0.3s ease;
+        }
+
+        .github-icon-container svg {
+            width: 100%;
+            height: 100%;
+            fill: #ffffff;
+        }
+
+        .icon-card:hover .github-icon-container {
+            transform: scale(1.2);
+        }
+        
+        /* Background Glow Effect */
+        .glow-effect {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, 
+                rgba(138, 43, 226, 0.4) 0%, 
+                transparent 70%);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            filter: blur(50px);
+        }
+        
+        /* Hover and Active States */
+        .icon-card:hover {
+            transform: scale(1.1) rotateY(-5deg); 
+            z-index: 10;
+        }
+        
+        .icon-card:hover .card-content {
+            background: linear-gradient(135deg, 
+                rgba(138, 43, 226, 0.3) 0%, 
+                rgba(138, 43, 226, 0.15) 50%,
+                rgba(0, 0, 0, 0.4) 100%);
+            border-color: rgba(138, 43, 226, 0.8);
+            box-shadow: 0 30px 60px rgba(138, 43, 226, 0.4),
+                        inset 0 0 50px rgba(138, 43, 226, 0.2),
+                        0 0 100px rgba(138, 43, 226, 0.3);
+        }
+        
+        .icon-card:hover .glow-effect {
+            opacity: 1;
+        }
+        
+        .icon-card:hover .icon-svg {
+            transform: scale(1.2) rotateZ(360deg);
+            filter: drop-shadow(0 0 40px rgba(138, 43, 226, 1));
+        }
+        
+        .icon-card:hover .character-name {
+            transform: scale(1.1);
+            text-shadow: 0 0 30px rgba(138, 43, 226, 1);
+        }
+        
+        .icon-card:hover .character-desc {
+            opacity: 1;
+            color: #ddd;
+        }
+        
+        /* Dimmed class for unselected cards */
+        .dimmed {
+            opacity: 0.3;
+            filter: grayscale(0.8);
+            transform: scale(0.9);
+        }
+        
+        .dimmed:hover {
+            transform: scale(0.95);
+        }
+        
+        /* Floating Particles */
+        .particle {
+            position: fixed;
+            pointer-events: none;
+            opacity: 0;
+            animation: floatParticle 8s infinite;
+        }
+        
+        @keyframes floatParticle {
+            0% {
+                opacity: 0;
+                transform: translateY(100vh) scale(0);
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-100vh) scale(1);
+            }
+        }
+        
+        /* Info Text at Bottom */
+        .info-text {
+            position: absolute;
+            bottom: 30px;
+            font-size: 0.9rem;
+            color: #666;
+            text-align: center;
+            opacity: 0;
+            animation: fadeIn 1s ease 1s forwards;
+        }
+        
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+
+        /* Mobile Styles */
+        @media (max-width: 768px) {
+            body {
+                overflow-y: auto;
+                overflow-x: hidden;
+            }
+
+            .back-button {
+                top: 15px;
+                left: 15px;
+                padding: 10px 20px;
+                font-size: 0.9rem;
+                position: absolute; /* Hide on mobile */
+            }
+
+            .main-container {
+                min-height: 100vh;
+                height: auto;
+                padding: 90px 20px 40px;
+            }
+
+            .title {
+                position: relative;
+                top: auto;
+                font-size: 1.8rem;
+                letter-spacing: 2px;
+                margin-bottom: 40px;
+            }
+            
+            .icons-container {
+                flex-direction: column;
+                gap: 30px;
+                perspective: none;
+            }
+            
+            .icon-card {
+                width: 100%;
+                max-width: 300px;
+                height: auto;
+                min-height: 200px;
+                transform: none !important;
+            }
+
+            .icon-card {
+                opacity: 0;
+                animation: none; /* Disabilita l'animazione desktop */
+            }
+            
+            /* Posizioni iniziali diverse per ogni card */
+            .icon-card:nth-child(1) {
+                transform: translateX(-100px);
+            }
+            
+            .icon-card:nth-child(2) {
+                transform: translateY(100px);
+            }
+            
+            .icon-card:nth-child(3) {
+                transform: translateX(100px);
+            }
+            
+            /* Animazione quando viene aggiunta la classe */
+            .icon-card.mobile-appear {
+                animation: mobileSlideIn 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+            }
+            
+            @keyframes mobileSlideIn {
+                to {
+                    opacity: 1;
+                    transform: translate(0, 0) scale(1);
+                }
+            }
+
+            .card-content {
+                padding: 30px 20px;
+                border-radius: 15px;
+            }
+            
+            .icon-svg {
+                width: 70px;
+                height: 70px;
+                margin-bottom: 15px;
+            }
+            
+            .character-name {
+                font-size: 1.3rem;
+                margin-bottom: 5px;
+            }
+
+            .character-desc {
+                font-size: 0.85rem;
+                padding: 0 10px;
+                margin-bottom: 10px;
+            }
+
+            .github-icon-container {
+                width: 25px;
+                height: 25px;
+                margin-top: 10px;
+            }
+
+            /* Mobile touch states */
+            .icon-card:active {
+                transform: scale(0.98) !important;
+            }
+
+            .icon-card:active .card-content {
+                background: linear-gradient(135deg, 
+                    rgba(138, 43, 226, 0.25) 0%, 
+                    rgba(138, 43, 226, 0.1) 50%,
+                    rgba(0, 0, 0, 0.4) 100%);
+                border-color: rgba(138, 43, 226, 0.6);
+            }
+
+            /* Disable hover effects on mobile */
+            .icon-card:hover {
+                transform: none;
+            }
+
+            .icon-card:hover .icon-svg {
+                transform: none;
+            }
+
+            .dimmed {
+                opacity: 1;
+                filter: none;
+                transform: none;
+            }
+
+            .info-text {
+                display: none;
+            }
+
+            /* Simplified particle effect for mobile */
+            .particle {
+                display: none;
+            }
+
+            /* Mobile-specific glow on tap */
+            .mobile-tap-glow {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                width: 100px;
+                height: 100px;
+                background: radial-gradient(circle, rgba(138, 43, 226, 0.6) 0%, transparent 70%);
+                opacity: 0;
+                pointer-events: none;
+                animation: mobileTapGlow 0.6s ease-out;
+            }
+
+            @keyframes mobileTapGlow {
+                0% {
+                    opacity: 0;
+                    transform: translate(-50%, -50%) scale(0.5);
+                }
+                50% {
+                    opacity: 1;
+                }
+                100% {
+                    opacity: 0;
+                    transform: translate(-50%, -50%) scale(2);
+                }
+            }
+
+            .icon-card {
+                opacity: 0;
+                transform: translateY(50px);
+                animation: none; /* Disabilita l'animazione desktop */
+            }
+            
+            .icon-card.mobile-appear {
+                animation: mobileCardAppear 0.6s ease forwards;
+            }
+            
+            @keyframes mobileCardAppear {
+                from {
+                    opacity: 0;
+                    transform: translateY(50px) scale(0.9);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0) scale(1);
+                }
+            }
+            
+            /* Stagger effect per le card */
+            .icon-card:nth-child(1) .card-content {
+                animation-delay: 0.1s;
+            }
+            
+            .icon-card:nth-child(2) .card-content {
+                animation-delay: 0.3s;
+            }
+            
+            .icon-card:nth-child(3) .card-content {
+                animation-delay: 0.5s;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .title {
+                font-size: 1.5rem;
+            }
+
+            .icon-card {
+                max-width: 280px;
+            }
+
+            .character-name {
+                font-size: 1.2rem;
+            }
+
+            .character-desc {
+                font-size: 0.8rem;
+            }
+        }
+
+        /* Landscape mobile */
+        @media (max-height: 600px) and (orientation: landscape) {
+            .main-container {
+                padding: 60px 20px 20px;
+            }
+
+            .title {
+                font-size: 1.5rem;
+                margin-bottom: 20px;
+            }
+
+            .icons-container {
+                flex-direction: row;
+                gap: 20px;
+                overflow-x: auto;
+                overflow-y: hidden;
+                -webkit-overflow-scrolling: touch;
+                scroll-snap-type: x mandatory;
+                padding: 10px;
+            }
+
+            .icon-card {
+                flex: 0 0 auto;
+                width: 200px;
+                height: 150px;
+                scroll-snap-align: center;
+            }
+
+            .card-content {
+                padding: 15px;
+            }
+
+            .icon-svg {
+                width: 50px;
+                height: 50px;
+                margin-bottom: 10px;
+            }
+
+            .character-name {
+                font-size: 1rem;
+            }
+
+            .character-desc {
+                display: none;
+            }
+
+            .github-icon-container {
+                width: 20px;
+                height: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="back-button"> <span>←</span> Back to Portfolio </a>
+    <canvas id="matrix-canvas"></canvas>
+    <div class="overlay"></div>
+    
+    <div class="main-container">
+        <h1 class="title">University Projects</h1>
+        
+        <div class="icons-container">
+            <a href="https://github.com/NECKER55/stock_markets.git" target="_blank" rel="noopener noreferrer">
+                <div class="icon-card" data-project="finance">
+                    <div class="glow-effect"></div>
+                    <div class="card-content">
+                        <div class="icon-svg">
+                            <svg viewBox="0 0 100 100">
+                                <path d="M15 75 L30 45 L45 60 L60 30 L75 55 L75 75 Z" stroke="#8a2be2" stroke-width="4" fill="rgba(138, 43, 226, 0.2)"/>
+                                <circle cx="15" cy="75" r="3" fill="#8a2be2"/>
+                                <circle cx="30" cy="45" r="3" fill="#8a2be2"/>
+                                <circle cx="45" cy="60" r="3" fill="#8a2be2"/>
+                                <circle cx="60" cy="30" r="3" fill="#8a2be2"/>
+                                <circle cx="75" cy="55" r="3" fill="#8a2be2"/>
+                                <line x1="15" y1="75" x2="75" y2="75" stroke="#8a2be2" stroke-width="2"/>
+                                <line x1="15" y1="75" x2="15" y2="25" stroke="#8a2be2" stroke-width="2"/>
+                            </svg>
+                        </div>
+                        <h3 class="character-name">stock</h3>
+                        <h3 class="character-name">market</h3>
+                        <p class="character-desc">Reproduction of various financial markets</p>
+                        <p class="character-desc">Java project</p>
+                        <div class="github-icon-container">
+                            <svg viewBox="0 0 98 96">
+                                <path fill="currentColor" fill-rule="evenodd" d="M48.854 0C21.839 0 0 22 0 49.217c0 21.756 13.993 40.172 33.426 46.696 2.427.466 3.314-1.054 3.314-2.362 0-1.164-.042-4.24-.079-8.329-13.58 2.934-16.425-5.878-16.425-5.878-2.213-5.636-5.4-7.152-5.4-7.152-4.436-3.033.337-2.97.337-2.97 4.912.353 7.493 5.064 7.493 5.064 4.364 7.465 11.458 5.319 14.232 4.075.432-3.179 1.7-5.319 3.09-6.541-10.94-1.242-22.413-5.46-22.413-24.269 0-5.352 1.916-9.724 5.06-13.18-.485-1.247-2.11-6.233.483-13.044 0 0 4.132-1.31 13.52 5.012 3.91-1.085 8.117-1.628 12.309-1.649 4.19.022 8.397.564 12.309 1.649 9.388-6.322 13.52-5.012 13.52-5.012 2.593 6.811.968 11.8.483 13.044 3.146 3.456 5.06 7.828 5.06 13.18 0 18.852-11.488 23.013-22.464 24.238 1.745 1.502 3.292 4.47 3.292 9.003 0 6.541-.043 11.838-.043 13.454 0 1.309.89 2.859 3.336 2.358C84.007 89.267 98 70.85 98 49.217 98 22 76.161 0 48.854 0z"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </a>
+            
+            <a href="https://github.com/NECKER55/pathFinding_algorithm.git" target="_blank" rel="noopener noreferrer">
+                <div class="icon-card" data-project="algorithms">
+                    <div class="glow-effect"></div>
+                    <div class="card-content">
+                        <div class="icon-svg">
+                            <svg viewBox="0 0 100 100">
+                                <circle cx="25" cy="30" r="7" fill="#8a2be2"/>
+                                <circle cx="75" cy="30" r="7" fill="#8a2be2"/>
+                                <circle cx="50" cy="70" r="7" fill="#8a2be2"/>
+                                
+                                <line x1="25" y1="30" x2="75" y2="30" stroke="#8a2be2" stroke-width="2" stroke-dasharray="4 2"/>
+                                <line x1="25" y1="30" x2="50" y2="70" stroke="#8a2be2" stroke-width="2" stroke-dasharray="4 2"/>
+                                <line x1="75" y1="30" x2="50" y2="70" stroke="#8a2be2" stroke-width="2" stroke-dasharray="4 2"/>
+
+                                <circle cx="40" cy="45" r="3" fill="#8a2be2" opacity="0.7"/>
+                                <circle cx="60" cy="45" r="3" fill="#8a2be2" opacity="0.7"/>
+                                <circle cx="50" cy="15" r="3" fill="#8a2be2" opacity="0.7"/>
+                                <circle cx="50" cy="85" r="3" fill="#8a2be2" opacity="0.7"/>
+                            </svg>
+                        </div>
+                        <h3 class="character-name">algorithms</h3>
+                        <p class="character-desc">Heuristic-based algorithm for finding the best path</p>
+                        <div class="github-icon-container">
+                            <svg viewBox="0 0 98 96">
+                                <path fill="currentColor" fill-rule="evenodd" d="M48.854 0C21.839 0 0 22 0 49.217c0 21.756 13.993 40.172 33.426 46.696 2.427.466 3.314-1.054 3.314-2.362 0-1.164-.042-4.24-.079-8.329-13.58 2.934-16.425-5.878-16.425-5.878-2.213-5.636-5.4-7.152-5.4-7.152-4.436-3.033.337-2.97.337-2.97 4.912.353 7.493 5.064 7.493 5.064 4.364 7.465 11.458 5.319 14.232 4.075.432-3.179 1.7-5.319 3.09-6.541-10.94-1.242-22.413-5.46-22.413-24.269 0-5.352 1.916-9.724 5.06-13.18-.485-1.247-2.11-6.233.483-13.044 0 0 4.132-1.31 13.52 5.012 3.91-1.085 8.117-1.628 12.309-1.649 4.19.022 8.397.564 12.309 1.649 9.388-6.322 13.52-5.012 13.52-5.012 2.593 6.811.968 11.8.483 13.044 3.146 3.456 5.06 7.828 5.06 13.18 0 18.852-11.488 23.013-22.464 24.238 1.745 1.502 3.292 4.47 3.292 9.003 0 6.541-.043 11.838-.043 13.454 0 1.309.89 2.859 3.336 2.358C84.007 89.267 98 70.85 98 49.217 98 22 76.161 0 48.854 0z"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </a>
+            
+            <a href="https://github.com/NECKER55/supermarket_shop.git" target="_blank" rel="noopener noreferrer">
+                <div class="icon-card" data-project="supermarkets">
+                    <div class="glow-effect"></div>
+                    <div class="card-content">
+                        <div class="icon-svg">
+                            <svg viewBox="0 0 100 100">
+                                <rect x="20" y="40" width="60" height="40" fill="#8a2be2"/>
+                                <polygon points="15 40 85 40 50 20" fill="#8a2be2"/>
+                                <rect x="45" y="55" width="10" height="25" fill="#000000"/>
+                                <rect x="30" y="50" width="8" height="15" fill="#000000" opacity="0.7"/>
+                                <rect x="62" y="50" width="8" height="15" fill="#000000" opacity="0.7"/>
+                            </svg>
+                        </div>
+                        <h3 class="character-name">shop site</h3>
+                        <p class="character-desc">Site to manage the various purchases of various customers and various stores from suppliers</p>
+                        <div class="github-icon-container">
+                            <svg viewBox="0 0 98 96">
+                                <path fill="currentColor" fill-rule="evenodd" d="M48.854 0C21.839 0 0 22 0 49.217c0 21.756 13.993 40.172 33.426 46.696 2.427.466 3.314-1.054 3.314-2.362 0-1.164-.042-4.24-.079-8.329-13.58 2.934-16.425-5.878-16.425-5.878-2.213-5.636-5.4-7.152-5.4-7.152-4.436-3.033.337-2.97.337-2.97 4.912.353 7.493 5.064 7.493 5.064 4.364 7.465 11.458 5.319 14.232 4.075.432-3.179 1.7-5.319 3.09-6.541-10.94-1.242-22.413-5.46-22.413-24.269 0-5.352 1.916-9.724 5.06-13.18-.485-1.247-2.11-6.233.483-13.044 0 0 4.132-1.31 13.52 5.012 3.91-1.085 8.117-1.628 12.309-1.649 4.19.022 8.397.564 12.309 1.649 9.388-6.322 13.52-5.012 13.52-5.012 2.593 6.811.968 11.8.483 13.044 3.146 3.456 5.06 7.828 5.06 13.18 0 18.852-11.488 23.013-22.464 24.238 1.745 1.502 3.292 4.47 3.292 9.003 0 6.541-.043 11.838-.043 13.454 0 1.309.89 2.859 3.336 2.358C84.007 89.267 98 70.85 98 49.217 98 22 76.161 0 48.854 0z"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+        
+        <p class="info-text">Hover to highlight • Click empty space to reset</p>
+    </div>
+
+    <script>
+        // Mobile detection
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+
+        // Matrix rain effect
+        const matrixCanvas = document.getElementById('matrix-canvas');
+        const matrixCtx = matrixCanvas.getContext('2d');
+        let matrixDrops = [];
+        const fontSize = isMobile ? 10 : 14;
+        const characters = '01';
+        let columns;
+        let animationId;
+
+        function initMatrixRain() {
+            matrixCanvas.width = window.innerWidth;
+            matrixCanvas.height = window.innerHeight;
+            columns = Math.floor(matrixCanvas.width / fontSize);
+            matrixDrops = [];
+            
+            // Reduce columns on mobile for performance
+            const columnCount = isMobile ? Math.floor(columns / 2) : columns;
+            
+            for (let i = 0; i < columnCount; i++) {
+                matrixDrops[i] = Math.floor(Math.random() * -100);
+            }
+        }
+
+        function animateMatrixRain() {
+            matrixCtx.fillStyle = 'rgba(0, 0, 0, 0.02)';
+            matrixCtx.fillRect(0, 0, matrixCanvas.width, matrixCanvas.height);
+
+            matrixCtx.fillStyle = '#8a2be2';
+            matrixCtx.font = `${fontSize}px monospace`;
+            matrixCtx.shadowBlur = isMobile ? 4 : 8;
+            matrixCtx.shadowColor = '#8a2be2';
+
+            const step = isMobile ? 2 : 1;
+            for (let i = 0; i < matrixDrops.length; i += step) {
+                const text = characters.charAt(Math.floor(Math.random() * characters.length));
+                const x = i * fontSize * (isMobile ? 2 : 1);
+                const y = matrixDrops[i] * fontSize;
+                
+                const brightness = Math.random() * 0.3 + 0.2;
+                matrixCtx.fillStyle = `rgba(138, 43, 226, ${brightness})`;
+                matrixCtx.fillText(text, x, y);
+
+                if (matrixDrops[i] * fontSize > matrixCanvas.height && Math.random() > 0.98) {
+                    matrixDrops[i] = -1;
+                }
+                
+                matrixDrops[i] += isMobile ? 0.5 : 0.3;
+            }
+            
+            matrixCtx.shadowBlur = 0;
+        }
+
+        // Character selection
+        const cards = document.querySelectorAll('.icon-card');
+        let selectedCard = null;
+
+        // Desktop interactions
+        if (!isTouch) {
+            cards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    if (!selectedCard) {
+                        cards.forEach(c => {
+                            if (c !== this) {
+                                c.classList.add('dimmed');
+                            }
+                        });
+                    }
+                });
+
+                card.addEventListener('mouseleave', function() {
+                    if (!selectedCard) {
+                        cards.forEach(c => {
+                            c.classList.remove('dimmed');
+                        });
+                    }
+                });
+
+                card.addEventListener('click', function(e) {
+                    e.stopPropagation(); 
+                    selectedCard = this;
+                    cards.forEach(c => {
+                        if (c !== this) {
+                            c.classList.add('dimmed');
+                        } else {
+                            c.classList.remove('dimmed');
+                        }
+                    });
+                });
+            });
+        }
+
+        // Mobile touch interactions
+        if (isTouch) {
+            cards.forEach(card => {
+                card.addEventListener('touchstart', function(e) {
+                    // Add visual feedback
+                    this.style.transform = 'scale(0.98)';
+                    
+                    // Create tap glow effect
+                    const glow = document.createElement('div');
+                    glow.className = 'mobile-tap-glow';
+                    this.appendChild(glow);
+                    
+                    setTimeout(() => {
+                        glow.remove();
+                    }, 600);
+                });
+
+                card.addEventListener('touchend', function(e) {
+                    this.style.transform = '';
+                });
+            });
+        }
+
+        // Click on empty space to reset (desktop only)
+        if (!isTouch) {
+            document.body.addEventListener('click', function(e) {
+                if (!e.target.closest('.icon-card')) {
+                    selectedCard = null;
+                    cards.forEach(c => {
+                        c.classList.remove('dimmed');
+                    });
+                }
+            });
+        }
+
+        // Create floating particles (desktop only)
+        function createParticle() {
+            if (isMobile) return; // Skip particles on mobile
+            
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.left = Math.random() * window.innerWidth + 'px';
+            particle.style.width = particle.style.height = Math.random() * 4 + 2 + 'px';
+            particle.style.background = '#8a2be2';
+            particle.style.borderRadius = '50%';
+            particle.style.boxShadow = '0 0 10px rgba(138, 43, 226, 0.8)';
+            particle.style.animationDelay = Math.random() * 8 + 's';
+            particle.style.animationDuration = (Math.random() * 10 + 8) + 's';
+            document.body.appendChild(particle);
+
+            setTimeout(() => {
+                particle.remove();
+            }, 18000);
+        }
+
+        // Create particles periodically (desktop only)
+        let particleInterval;
+        if (!isMobile) {
+            particleInterval = setInterval(createParticle, 500);
+        }
+
+        // Performance optimization for mobile
+        let lastTime = 0;
+        const targetFPS = isMobile ? 30 : 60;
+        const frameDelay = 1000 / targetFPS;
+
+        function animate(currentTime) {
+            if (currentTime - lastTime >= frameDelay) {
+                animateMatrixRain();
+                lastTime = currentTime;
+            }
+            animationId = requestAnimationFrame(animate);
+        }
+
+        // Initialization
+        initMatrixRain();
+        animate(0);
+
+                if (isMobile) {
+            // Intersection Observer per animare le card quando entrano nel viewport
+            const observerOptions = {
+                root: null,
+                rootMargin: '0px',
+                threshold: 0.1 // Trigger quando il 10% della card è visibile
+            };
+            
+            const cardObserver = new IntersectionObserver((entries) => {
+                entries.forEach((entry, index) => {
+                    if (entry.isIntersecting) {
+                        // Aggiungi un delay progressivo per ogni card
+                        setTimeout(() => {
+                            entry.target.classList.add('mobile-appear');
+                            
+                            // Opzionale: aggiungi un effetto vibrazione leggero
+                            if ('vibrate' in navigator) {
+                                navigator.vibrate(10);
+                            }
+                        }, index * 150); // 150ms di delay tra ogni card
+                        
+                        // Una volta animata, non serve più osservarla
+                        cardObserver.unobserve(entry.target);
+                    }
+                });
+            }, observerOptions);
+            
+            // Osserva tutte le card
+            cards.forEach(card => {
+                cardObserver.observe(card);
+            });
+            
+            // Alternativa: Animazione al caricamento della pagina
+            // Se preferisci che appaiano automaticamente dopo il caricamento:
+            window.addEventListener('load', () => {
+                setTimeout(() => {
+                    cards.forEach((card, index) => {
+                        setTimeout(() => {
+                            card.classList.add('mobile-appear');
+                        }, index * 200);
+                    });
+                }, 500); // Aspetta 500ms dopo il caricamento
+            });
+        }
+
+        // Handle resize
+        let resizeTimeout;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(() => {
+                initMatrixRain();
+            }, 250);
+        });
+
+        // Visibility change handling (pause when hidden)
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                cancelAnimationFrame(animationId);
+                if (particleInterval) clearInterval(particleInterval);
+            } else {
+                animate(0);
+                if (!isMobile && !particleInterval) {
+                    particleInterval = setInterval(createParticle, 500);
+                }
+            }
+        });
+
+        // Mobile scroll handling
+        if (isMobile) {
+            let ticking = false;
+            function handleScroll() {
+                if (!ticking) {
+                    window.requestAnimationFrame(() => {
+                        // Pause matrix animation while scrolling
+                        cancelAnimationFrame(animationId);
+                        
+                        // Resume after scroll ends
+                        clearTimeout(window.scrollEndTimer);
+                        window.scrollEndTimer = setTimeout(() => {
+                            animate(0);
+                        }, 150);
+                        
+                        ticking = false;
+                    });
+                    ticking = true;
+                }
+            }
+            
+            window.addEventListener('scroll', handleScroll, { passive: true });
+        }
+
+        // Touch feedback for links
+        if (isTouch) {
+            const links = document.querySelectorAll('a');
+            links.forEach(link => {
+                link.addEventListener('touchstart', function() {
+                    this.style.opacity = '0.7';
+                });
+                link.addEventListener('touchend', function() {
+                    this.style.opacity = '';
+                });
+            });
+        }
+
+        // Preload optimization
+        if ('requestIdleCallback' in window) {
+            requestIdleCallback(() => {
+                // Preload GitHub links
+                const githubLinks = document.querySelectorAll('a[href*="github.com"]');
+                githubLinks.forEach(link => {
+                    const preloadLink = document.createElement('link');
+                    preloadLink.rel = 'preconnect';
+                    preloadLink.href = 'https://github.com';
+                    document.head.appendChild(preloadLink);
+                });
+            });
+        }
+
+        // Clean up on unload
+        window.addEventListener('beforeunload', () => {
+            cancelAnimationFrame(animationId);
+            if (particleInterval) clearInterval(particleInterval);
+        });
+    </script>
+</body>
+</html>

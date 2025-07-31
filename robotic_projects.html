@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Robotic Portfolio - Final</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #000000;
+            color: #ffffff;
+            overflow: hidden;
+        }
+        
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            z-index: 1;
+            cursor: default;
+        }
+
+        #matrix-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            z-index: 0;
+            pointer-events: none;
+        }
+        
+        .back-button {
+            position: fixed;
+            top: 30px;
+            left: 30px;
+            z-index: 100;
+            background: rgba(147, 112, 219, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(147, 112, 219, 0.3);
+            padding: 12px 25px;
+            border-radius: 50px;
+            text-decoration: none;
+            color: #9370DB;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 5px 25px rgba(147, 112, 219, 0.2);
+        }
+
+
+        .page-title {
+            position: fixed;
+            top: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+            color: #fff;
+            font-size: 2rem;
+            text-shadow: 0 0 20px rgba(147, 112, 219, 0.8);
+        }
+
+        .model-info-card {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 380px;
+            background: rgba(10, 20, 40, 0.2);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(147, 112, 219, 0.3);
+            padding: 25px;
+            border-radius: 15px;
+            z-index: 20;
+            box-shadow: 0 10px 40px rgba(147, 112, 219, 0.2);
+            text-align: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.4s ease, bottom 0.4s ease;
+            pointer-events: none; 
+        }
+
+        .model-info-card.visible {
+            opacity: 1;
+            visibility: visible;
+            bottom: 120px;
+        }
+
+        .model-info-card h2 {
+            font-size: 1.8rem;
+            color: #9370DB;
+            margin-bottom: 10px;
+        }
+        
+        .controls-hint {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(147, 112, 219, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(147, 112, 219, 0.2);
+            padding: 15px 30px;
+            border-radius: 50px;
+            z-index: 10;
+            text-align: center;
+            opacity: 0;
+            animation: fadeIn 1s ease 2s forwards;
+        }
+        
+        @keyframes fadeIn { to { opacity: 1; } }
+
+        @media (max-width: 768px) {
+            .back-button {
+                top: unset;
+                left: 50%;
+                transform: translateX(-50%);
+                bottom: 20px;
+                position: fixed;
+                padding: 10px 20px;
+                font-size: 0.9rem;
+            }
+
+            .back-button.hidden {
+                opacity: 0;
+                pointer-events: none;
+                transform: translateX(-50%) translateY(20px); /* Optional: add a small vertical slide out effect */
+            }
+
+            .controls-hint {
+                display: none !important;
+            }
+
+            .page-title {
+                top: 30px;
+                font-size: 1.6rem;
+            }
+
+            .model-info-card {
+                width: 90%;
+                max-width: 320px;
+                bottom: 80px;
+                padding: 20px;
+            }
+
+            .model-info-card.visible {
+                bottom: 95px;
+            }
+            
+            .model-info-card h2 {
+                font-size: 1.5rem;
+            }
+            
+            .model-info-card p {
+                font-size: 0.9rem;
+            }
+
+            .controls-hint {
+                padding: 12px 22px;
+                font-size: 0.8rem;
+                width: 90%;
+                bottom: 25px;
+            }
+        }
+        
+    </style>
+</head>
+<body>
+    <a href="index.html" class="back-button"> <span></span> Back to portfolio </a>
+    <h1 class="page-title">My Projects</h1>
+    <div id="canvas-container"></div>
+    <div id="robot_1-info" class="model-info-card">
+        <h2>Dobot CR5</h2>
+        <p>6-axis industrial robotic arm. Click to see the project.</p>
+    </div>
+    <div id="robot_2-info" class="model-info-card">
+        <h2>C. elegans</h2>
+        <p>Neural network structured like the nervous system of the worm C. elegans</p>
+    </div>
+    <div class="controls-hint"> 🖱️ Hover over models • Click for details • Click outside to return </div>
+
+    <canvas id="matrix-canvas"></canvas> <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script> <script src="https://cdn.jsdelivr.net/npm/fflate@0.7.0/umd/index.min.js"></script>
+    
+    <script>
+        let scene, camera, renderer;
+        const container = document.getElementById('canvas-container');
+        
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+        let activeModelKey = null;
+        let currentHoveredModelVisual = null;
+
+        const loadedModels = {};
+        
+        const cameraBasePosition = new THREE.Vector3(0, 1.2, 5);
+        const cameraLookAt = new THREE.Vector3(0, 0.2, 0);
+        const cameraCurrentPosition = new THREE.Vector3().copy(cameraBasePosition);
+
+        const matrixCanvas = document.getElementById('matrix-canvas');
+        const matrixCtx = matrixCanvas.getContext('2d');
+        let matrixDrops = [];
+        const fontSize = 16;
+        const characters = '01';
+        let columns;
+
+        const isMobile = window.innerWidth <= 768;
+
+        const MODELS_TO_LOAD = {
+            robot_1: {
+                glbPath: 'dobot_static.glb',
+                url: 'dobot.html',
+                initialState: {
+                    // ✨ MODIFICA MOBILE: Posizione iniziale più vicina
+                    position: isMobile ? new THREE.Vector3(-0.8, 0, 0) : new THREE.Vector3(-1.5, 0, 0),
+                    scale: new THREE.Vector3(200, 200, 200),
+                    rotation: new THREE.Euler(0, 2.2, 0)
+                },
+                focusState: {
+                    position: new THREE.Vector3(-1.2, 0, 0.5),
+                    scale: new THREE.Vector3(180, 180, 180),
+                    cameraOffset: isMobile ? new THREE.Vector3(-0.3, 0.8, 4.0) : new THREE.Vector3(-0.3, 0.8, 2.5) 
+                },
+                backgroundState: { 
+                    // ✨ MODIFICA MOBILE: Posizione background più vicina
+                    position: isMobile ? new THREE.Vector3(-1.3, 0, -0.8) : new THREE.Vector3(-1.8, 0, -0.5),
+                    scale: new THREE.Vector3(120, 120, 120),
+                }
+            },
+            robot_2: {
+                glbPath: 'worm.glb',
+                url: 'neuron.html',
+                initialState: {
+                    // ✨ MODIFICA MOBILE: Posizione iniziale più vicina
+                    position: isMobile ? new THREE.Vector3(1.1, 0.7, 0) : new THREE.Vector3(1.5, 0.7, 0),
+                    scale: new THREE.Vector3(0.015, 0.015, 0.015),
+                    rotation: new THREE.Euler(90, 1.4, 0)
+                },
+                focusState: {
+                    position: new THREE.Vector3(1.2, 0.7, 0.5),
+                    scale: new THREE.Vector3(0.017, 0.017, 0.017),
+                    cameraOffset: isMobile ? new THREE.Vector3(0.3, 0.1, 4.0) : new THREE.Vector3(0.3, 0.1, 2.5) 
+                },
+                backgroundState: { 
+                    // ✨ MODIFICA MOBILE: Posizione background più vicina
+                    position: isMobile ? new THREE.Vector3(1.6, 0.7, -0.8) : new THREE.Vector3(1.8, 0.7, -0.5),
+                    scale: new THREE.Vector3(0.012, 0.012, 0.012),
+                }
+            }
+        };
+
+        function init() {
+
+            initMatrixRain();
+
+            scene = new THREE.Scene();
+            scene.fog = new THREE.Fog(0x000000, 5, 12);
+            
+            camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.copy(isMobile ? new THREE.Vector3(0, 1.2, 6.5) : cameraBasePosition); 
+            cameraCurrentPosition.copy(camera.position);
+            
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            renderer.toneMapping = THREE.ACESFilmicToneMapping;
+            renderer.toneMappingExposure = 1.0;
+            container.appendChild(renderer.domElement);
+            
+            setupLights();
+            createFloor();
+            loadAllModels();
+
+            for (const key in MODELS_TO_LOAD) {
+                MODELS_TO_LOAD[key].infoCard = document.getElementById(`${key}-info`);
+            }
+
+            window.addEventListener('resize', onWindowResize);
+            container.addEventListener('mousemove', onMouseMove);
+            container.addEventListener('click', onClick);
+
+            animate();
+        }
+
+        function initMatrixRain() {
+            matrixCanvas.width = window.innerWidth;
+            matrixCanvas.height = window.innerHeight;
+            columns = Math.floor(matrixCanvas.width / fontSize);
+            matrixDrops = [];
+            for (let i = 0; i < columns; i++) {
+                matrixDrops[i] = Math.floor(Math.random() * -100);
+            }
+        }
+
+        function setupLights() {
+            scene.add(new THREE.HemisphereLight(0x9370DB, 0x111122, 1.2));
+            const mainLight = new THREE.DirectionalLight(0xffffff, 1.4);
+            mainLight.position.set(4, 4, 3);
+            mainLight.castShadow = true;
+            mainLight.shadow.mapSize.width = 2048;
+            mainLight.shadow.mapSize.height = 2048;
+            scene.add(mainLight);
+        }
+
+        function createFloor() {
+            const floorGeometry = new THREE.PlaneGeometry(30, 9);
+            const floorMaterial = new THREE.MeshStandardMaterial({ color: 0x111111, metalness: 0.1, roughness: 0.8 });
+            const floor = new THREE.Mesh(floorGeometry, floorMaterial);
+            floor.rotation.x = -Math.PI / 2;
+            floor.receiveShadow = true;
+            scene.add(floor);
+        }
+        
+        function loadAllModels() {
+            const manager = new THREE.LoadingManager();
+            const gltfLoader = new THREE.GLTFLoader(manager);
+
+            for (const key in MODELS_TO_LOAD) {
+                const modelInfo = MODELS_TO_LOAD[key];
+                gltfLoader.load(modelInfo.glbPath, (gltf) => {
+                    const model = gltf.scene;
+                    model.name = key;
+
+                    if (key === 'robot_2') { // Applica l'effetto solo al modello del verme
+                        model.traverse((child) => {
+                            // Controlla se la parte del modello è una mesh con un materiale
+                            if (child.isMesh && child.material) {
+                                // Imposta il colore della luce che il modello deve emettere.
+                                // Uso il viola del tuo tema per coerenza."rgba(151, 78, 18, 0.596)"
+                                child.material.emissive = new THREE.Color(0xffffff);
+
+                                // Imposta l'intensità della luce.
+                                // Un valore > 1 lo renderà molto luminoso. Prova a giocare con questo numero.
+                                child.material.emissiveIntensity = 0.3;
+
+                                // Assicura che il materiale si aggiorni
+                                child.material.needsUpdate = true;
+                            }
+                        });
+                    }
+
+                    // Usa la posizione iniziale corretta per mobile/desktop
+                    const initialState = modelInfo.initialState;
+                    model.position.copy(initialState.position);
+                    model.rotation.copy(initialState.rotation);
+                    model.scale.set(0, 0, 0);
+
+                    model.traverse((child) => {
+                        if (child.isMesh) {
+                            child.castShadow = true;
+                            child.receiveShadow = true;
+                        }
+                    });
+
+                    loadedModels[key] = { 
+                        object: model,
+                        targetScale: initialState.scale.clone(),
+                        animationProgress: 0,
+                        isAnimating: false,
+                        ...modelInfo 
+                    };
+                    scene.add(model);
+                    
+                    setTimeout(() => {
+                        loadedModels[key].isAnimating = true;
+                    }, 500 + Math.random() * 1000);
+                });
+            }
+        }
+
+        function updateScaleAnimations() {
+            for (const key in loadedModels) {
+                const modelData = loadedModels[key];
+                
+                if (modelData.isAnimating && modelData.animationProgress < 1) {
+                    modelData.animationProgress += 0.02;
+                    const t = modelData.animationProgress;
+                    const easedProgress = 1 - Math.pow(1 - t, 3);
+                    
+                    const targetScale = modelData.targetScale;
+                    modelData.object.scale.set(
+                        targetScale.x * easedProgress,
+                        targetScale.y * easedProgress,
+                        targetScale.z * easedProgress
+                    );
+                    
+                    if (modelData.animationProgress >= 1) {
+                        modelData.isAnimating = false;
+                        modelData.object.scale.copy(targetScale);
+                    }
+                }
+            }
+        }
+
+        function onMouseMove(event) {
+            if (isMobile) return;
+
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
+            
+            const modelUnderMouse = findModelKeyUnderMouse(mouse);
+
+            if (modelUnderMouse !== currentHoveredModelVisual) {
+                currentHoveredModelVisual = modelUnderMouse;
+                document.body.style.cursor = currentHoveredModelVisual ? 'pointer' : 'default';
+            }
+
+            if (modelUnderMouse && activeModelKey !== modelUnderMouse) {
+                if (activeModelKey && loadedModels[activeModelKey].infoCard) {
+                    loadedModels[activeModelKey].infoCard.classList.remove('visible');
+                }
+                activeModelKey = modelUnderMouse;
+                if (loadedModels[activeModelKey].infoCard) {
+                    loadedModels[activeModelKey].infoCard.classList.add('visible');
+                }
+            }
+        }
+
+        function findModelKeyUnderMouse(mouseCoords) {
+            raycaster.setFromCamera(mouseCoords, camera);
+            const intersects = raycaster.intersectObjects(scene.children, true);
+            if (intersects.length > 0) {
+                let object = intersects[0].object;
+                while (object.parent && !loadedModels[object.name]) { 
+                    object = object.parent;
+                }
+                if (loadedModels[object.name]) { 
+                    return object.name; 
+                }
+            }
+            return null;
+        }
+        
+        function onClick(event) {
+            const clickX = event.clientX || (event.touches && event.touches[0].clientX);
+            const clickY = event.clientY || (event.touches && event.touches[0].clientY);
+            mouse.x = (clickX / window.innerWidth) * 2 - 1;
+            mouse.y = - (clickY / window.innerHeight) * 2 + 1;
+
+            const clickedModelKey = findModelKeyUnderMouse(mouse); 
+
+            if (isMobile) {
+                if (clickedModelKey) {
+                    if (activeModelKey === clickedModelKey) {
+                        window.location.href = loadedModels[clickedModelKey].url;
+                    } else {
+                        if (activeModelKey && loadedModels[activeModelKey].infoCard) {
+                            loadedModels[activeModelKey].infoCard.classList.remove('visible');
+                        }
+                        activeModelKey = clickedModelKey;
+                        if (loadedModels[activeModelKey].infoCard) {
+                            loadedModels[activeModelKey].infoCard.classList.add('visible');
+                        }
+                        // Show the back button when a model is active
+                        if (backButton) {
+                            backButton.classList.remove('hidden');
+                        }
+                    }
+                } else {
+                    // When clicking outside, hide the info card and the back button
+                    if (activeModelKey && loadedModels[activeModelKey].infoCard) {
+                        loadedModels[activeModelKey].infoCard.classList.remove('visible');
+                    }
+                    activeModelKey = null;
+                    // Hide the back button when no model is active
+                    if (backButton) {
+                        backButton.classList.add('hidden');
+                    }
+                }
+            } else {
+                if (clickedModelKey) {
+                    if (activeModelKey === clickedModelKey) {
+                        window.location.href = loadedModels[clickedModelKey].url;
+                    } else {
+                        if (activeModelKey && loadedModels[activeModelKey].infoCard) {
+                            loadedModels[activeModelKey].infoCard.classList.remove('visible');
+                        }
+                        activeModelKey = clickedModelKey;
+                        if (loadedModels[activeModelKey].infoCard) {
+                            loadedModels[activeModelKey].infoCard.classList.add('visible');
+                        }
+                    }
+                } else {
+                    if (activeModelKey && loadedModels[activeModelKey].infoCard) {
+                        loadedModels[activeModelKey].infoCard.classList.remove('visible');
+                    }
+                    activeModelKey = null;
+                }
+            }
+        }
+        
+        function onWindowResize() {
+            window.location.reload();
+        }
+
+        function animateMatrixRain() {
+            matrixCtx.fillStyle = 'rgba(0, 0, 0, 0.04)';
+            matrixCtx.fillRect(0, 0, matrixCanvas.width, matrixCanvas.height);
+            matrixCtx.font = `${fontSize}px monospace`;
+            matrixCtx.shadowBlur = 8;
+            matrixCtx.shadowColor = '#9370DB';
+
+            for (let i = 0; i < matrixDrops.length; i++) {
+                const text = characters.charAt(Math.floor(Math.random() * characters.length));
+                const x = i * fontSize;
+                const y = matrixDrops[i] * fontSize;
+                const brightness = Math.random() * 0.5 + 0.5;
+                matrixCtx.fillStyle = `rgba(147, 112, 219, ${brightness})`;
+                matrixCtx.fillText(text, x, y);
+
+                if (matrixDrops[i] * fontSize > matrixCanvas.height && Math.random() > 0.98) {
+                    matrixDrops[i] = -1;
+                }
+                
+                const fallSpeed = 0.3;
+                if (Math.random() > 0.95) {
+                    matrixDrops[i] += Math.random() * 0.5 + fallSpeed;
+                } else {
+                    matrixDrops[i] += fallSpeed;
+                }
+            }
+            matrixCtx.shadowBlur = 0;
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            updateScaleAnimations();
+
+            let targetCameraLookAt = new THREE.Vector3(0, 0.2, 0); 
+            let targetCameraPosition = isMobile ? new THREE.Vector3(0, 2.5, 6.5) : cameraBasePosition; 
+
+            if (activeModelKey) {
+                let yOffset = 0.0;
+                if (activeModelKey === 'robot_1') yOffset = 0.8;
+                else if (activeModelKey === 'robot_2') yOffset = 0.0;
+                
+                targetCameraLookAt.copy(loadedModels[activeModelKey].object.position).y += yOffset;
+                const modelPosition = loadedModels[activeModelKey].object.position;
+                const cameraOffset = MODELS_TO_LOAD[activeModelKey].focusState.cameraOffset; 
+                targetCameraPosition = new THREE.Vector3().addVectors(modelPosition, cameraOffset);
+            }
+            
+            cameraCurrentPosition.lerp(targetCameraPosition, 0.05); 
+            camera.position.copy(cameraCurrentPosition); 
+            cameraLookAt.lerp(targetCameraLookAt, 0.05); 
+            camera.lookAt(cameraLookAt);
+
+            for (const key in loadedModels) {
+                const modelData = loadedModels[key];
+                
+                if (modelData.isAnimating || !modelData.isInitialAnimationComplete) {
+                    continue;
+                }
+                
+                let targetState;
+                if (key === activeModelKey) {
+                    targetState = modelData.focusState;
+                } else if (activeModelKey !== null) { 
+                    targetState = modelData.backgroundState;
+                } else { 
+                    targetState = modelData.initialState;
+                }
+                
+                modelData.object.position.lerp(targetState.position, 0.05);
+                modelData.object.scale.lerp(targetState.scale, 0.05);
+            }
+            
+            animateMatrixRain();
+            renderer.render(scene, camera);
+        }
+        
+        init();
+    </script>
+</body>
+</html>
