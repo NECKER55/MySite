@@ -1,0 +1,964 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hardware Tracker - Andrea Veneroni</title>
+    <style>
+        /* 1. General Reset & Body */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #000000;
+            color: #ffffff;
+            overflow-x: hidden;
+            position: relative;
+            font-size: 16px;
+        }
+
+        /* 2. Layout & Backgrounds */
+        #matrix-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: radial-gradient(ellipse at center, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.3) 100%);
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        .main-container {
+            position: relative;
+            z-index: 3;
+            width: 100%;
+            min-height: 100vh;
+            padding: clamp(2.5rem, 8vh, 5rem) clamp(1.5rem, 6vw, 4rem);
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(5px);
+        }
+
+        /* 3. General Components */
+        .header {
+            margin-bottom: 3rem;
+            opacity: 0;
+            animation: fadeInUp 1s ease forwards;
+        }
+
+        h1 {
+            font-size: clamp(2.5rem, 5vw, 3.5rem);
+            font-weight: 700;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 20px rgba(138, 43, 226, 0.8), 2px 2px 10px rgba(0,0,0,0.8);
+        }
+
+        .subtitle {
+            font-size: clamp(1.1rem, 2vw, 1.3rem);
+            color: #aaa;
+            text-shadow: 0 0 10px rgba(138, 43, 226, 0.5), 1px 1px 5px rgba(0,0,0,0.8);
+        }
+
+        .back-button {
+            display: inline-block;
+            margin-bottom: 2rem;
+            padding: 0.75rem 1.5rem;
+            background: rgba(138, 43, 226, 0.1);
+            border: 1px solid rgba(138, 43, 226, 0.3);
+            border-radius: 10px;
+            color: #8A2BE2;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            text-shadow: 0 0 10px rgba(138, 43, 226, 0.6);
+        }
+
+        .back-button:hover {
+            background: rgba(138, 43, 226, 0.2);
+            border-color: rgba(138, 43, 226, 0.5);
+            transform: translateX(-5px);
+        }
+
+        /* 4. Content Grid Layout */
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        @media (min-width: 1024px) {
+            .content-grid {
+                grid-template-columns: 2fr 1fr;
+            }
+        }
+
+        /* 5. Hardware Components Menu */
+        .hardware-section {
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(138, 43, 226, 0.2);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            opacity: 0;
+            animation: fadeInUp 1s ease forwards 0.2s;
+        }
+
+        .section-title {
+            font-size: clamp(1.8rem, 4vw, 2.2rem);
+            margin-bottom: 1.5rem;
+            position: relative;
+            padding-left: 1rem;
+            text-shadow: 0 0 15px rgba(138, 43, 226, 0.6), 1px 1px 5px rgba(0,0,0,0.8);
+        }
+
+        .section-title::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 80%;
+            background: linear-gradient(to bottom, #8A2BE2, #6A1EB0);
+            box-shadow: 0 0 15px rgba(138, 43, 226, 0.8);
+        }
+
+        .component-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .component-item {
+            background: rgba(255, 255, 255, 0.01);
+            border: 1px solid rgba(138, 43, 226, 0.15);
+            border-radius: 10px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .component-item.active {
+            border-color: rgba(138, 43, 226, 0.5);
+            background: rgba(138, 43, 226, 0.05);
+        }
+
+        .component-header {
+            padding: 1rem 1.5rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .component-header:hover {
+            background: rgba(138, 43, 226, 0.05);
+        }
+
+        .component-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #8A2BE2;
+            text-shadow: 0 0 10px rgba(138, 43, 226, 0.6);
+        }
+
+        .component-icon {
+            font-size: 1.5rem;
+            transition: transform 0.3s ease;
+        }
+
+        .component-item.active .component-icon {
+            transform: rotate(180deg);
+        }
+
+        .component-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .component-item.active .component-content {
+            max-height: 600px;
+        }
+
+        .chart-container {
+            padding: 1.5rem;
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        .chart-wrapper {
+            position: relative;
+            height: 300px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(138, 43, 226, 0.1);
+            border-radius: 10px;
+            padding: 1rem;
+        }
+
+        canvas {
+            width: 100% !important;
+            height: 100% !important;
+        }
+
+        .model-list {
+            margin-top: 1rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .model-tag {
+            padding: 0.4rem 0.8rem;
+            background: rgba(138, 43, 226, 0.1);
+            border: 1px solid rgba(138, 43, 226, 0.3);
+            border-radius: 5px;
+            font-size: 0.85rem;
+            color: #ddd;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            user-select: none;
+        }
+
+        .model-tag:hover {
+            background: rgba(138, 43, 226, 0.2);
+            border-color: rgba(138, 43, 226, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .model-tag.hidden {
+            opacity: 0.3;
+            text-decoration: line-through;
+        }
+
+        /* 6. News Section */
+        .news-section {
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(138, 43, 226, 0.2);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            opacity: 0;
+            animation: fadeInUp 1s ease forwards 0.4s;
+        }
+
+        .news-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .news-card {
+            background: rgba(255, 255, 255, 0.01);
+            border: 1px solid rgba(138, 43, 226, 0.15);
+            border-radius: 10px;
+            padding: 1.25rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .news-card:hover {
+            background: rgba(138, 43, 226, 0.03);
+            border-color: rgba(138, 43, 226, 0.3);
+            transform: translateX(5px);
+        }
+
+        .news-date {
+            color: #8A2BE2;
+            font-size: 0.85rem;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 0 10px rgba(138, 43, 226, 0.6);
+        }
+
+        .news-title {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+            color: #fff;
+        }
+
+        .news-summary {
+            color: #bbb;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        /* 7. Newsletter Section */
+        .newsletter-section {
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(138, 43, 226, 0.2);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            opacity: 0;
+            animation: fadeInUp 1s ease forwards 0.6s;
+        }
+
+        .newsletter-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .form-label {
+            color: #8A2BE2;
+            font-size: 0.9rem;
+            text-shadow: 0 0 10px rgba(138, 43, 226, 0.6);
+        }
+
+        .form-input {
+            padding: 0.75rem 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(138, 43, 226, 0.3);
+            border-radius: 8px;
+            color: #fff;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: rgba(138, 43, 226, 0.6);
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 20px rgba(138, 43, 226, 0.3);
+        }
+
+        .form-input::placeholder {
+            color: #666;
+        }
+
+        .submit-button {
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(135deg, #8A2BE2, #6A1EB0);
+            border: 1px solid rgba(138, 43, 226, 0.5);
+            border-radius: 8px;
+            color: #fff;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .submit-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(138, 43, 226, 0.5);
+        }
+
+        .submit-button:active {
+            transform: translateY(0);
+        }
+
+        /* 8. Warning Banner */
+        .warning-banner {
+            background: linear-gradient(135deg, rgba(255, 159, 64, 0.15), rgba(255, 99, 71, 0.15));
+            border: 2px solid rgba(255, 159, 64, 0.5);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            opacity: 0;
+            animation: fadeInUp 1s ease forwards 0.1s;
+        }
+
+        .warning-icon {
+            font-size: 2rem;
+            flex-shrink: 0;
+        }
+
+        .warning-content h3 {
+            color: #ff9f40;
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 0 10px rgba(255, 159, 64, 0.6);
+        }
+
+        .warning-content p {
+            color: #ddd;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        /* 9. Description Section */
+        .description-section {
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(138, 43, 226, 0.2);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            opacity: 0;
+            animation: fadeInUp 1s ease forwards 0.15s;
+        }
+
+        .description-section h3 {
+            font-size: 1.4rem;
+            color: #8A2BE2;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 15px rgba(138, 43, 226, 0.6);
+        }
+
+        .description-section p {
+            color: #bbb;
+            line-height: 1.7;
+            margin-bottom: 1rem;
+        }
+
+        .tech-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+
+        .tech-tag {
+            padding: 0.5rem 1rem;
+            background: rgba(138, 43, 226, 0.1);
+            border: 1px solid rgba(138, 43, 226, 0.3);
+            border-radius: 8px;
+            color: #8A2BE2;
+            font-size: 0.9rem;
+            text-shadow: 0 0 10px rgba(138, 43, 226, 0.6);
+        }
+
+        /* Success Message */
+        .success-message {
+            background: linear-gradient(135deg, rgba(90, 200, 90, 0.15), rgba(34, 197, 94, 0.15));
+            border: 2px solid rgba(90, 200, 90, 0.5);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-top: 1rem;
+            display: none;
+            align-items: center;
+            gap: 1rem;
+            animation: fadeInUp 0.5s ease forwards;
+        }
+
+        .success-message.show {
+            display: flex;
+        }
+
+        .success-icon {
+            font-size: 2rem;
+            flex-shrink: 0;
+        }
+
+        .success-content h4 {
+            color: #5ac85a;
+            font-size: 1.1rem;
+            margin-bottom: 0.3rem;
+            text-shadow: 0 0 10px rgba(90, 200, 90, 0.6);
+        }
+
+        .success-content p {
+            color: #ddd;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        /* 10. Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* 11. Responsive */
+        @media (max-width: 768px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .warning-banner {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="matrix-canvas"></canvas>
+    <div class="overlay"></div>
+
+    <div class="main-container">
+        <a href="index.html" class="back-button">← Back to Home</a>
+        
+        <div class="header">
+            <h1>Hardware Tracker</h1>
+            <p class="subtitle">Real-time price monitoring and tech news</p>
+        </div>
+
+        <!-- Warning Banner -->
+        <div class="warning-banner">
+            <div class="warning-icon">⚠️</div>
+            <div class="warning-content">
+                <h3>Work in Progress</h3>
+                <p>This project is currently under active development. Features and data accuracy may change as improvements are implemented. ENTER YOUR EMAIL IN THE NEWSLETTER TO RECEIVE NEWS ONCE THE SOFTWARE IS COMPLETED</p>
+            </div>
+        </div>
+
+        <!-- Description Section -->
+        <div class="description-section">
+            <h3>🤖 How it Works</h3>
+            <p>
+                This hardware tracking system utilizes a <strong>pre-trained machine learning model</strong> combined with a 
+                multi-stage pipeline to deliver comprehensive market insights:
+            </p>
+            <p>
+                <strong>1. Data Extraction:</strong> Automated web scraping collects real-time pricing data from major retailers and marketplaces.<br>
+                <strong>2. News Aggregation:</strong> Natural language processing filters and summarizes relevant hardware news from trusted tech sources.<br>
+                <strong>3. Price Prediction:</strong> Time-series analysis and predictive modeling estimate future price trends based on historical data and market patterns.<br>
+                <strong>4. Visualization:</strong> Interactive charts display price evolution and allow easy comparison between different models.
+            </p>
+            <div class="tech-list">
+                <span class="tech-tag">🧠 Machine Learning</span>
+                <span class="tech-tag">📊 Data Analysis</span>
+                <span class="tech-tag">🔄 Real-time Updates</span>
+                <span class="tech-tag">📈 Price Forecasting</span>
+            </div>
+        </div>
+
+        <div class="content-grid">
+            <!-- Left Column: Hardware Components -->
+            <div>
+                <div class="hardware-section">
+                    <h2 class="section-title">Hardware Components</h2>
+                    <div class="component-menu" id="componentMenu">
+                        <!-- Components will be generated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: News & Newsletter -->
+            <div>
+                <!-- News Section -->
+                <div class="news-section">
+                    <h2 class="section-title">Latest News</h2>
+                    <div class="news-grid" id="newsGrid">
+                        <!-- News will be generated by JavaScript -->
+                    </div>
+                </div>
+
+                <!-- Newsletter Section -->
+                <div class="newsletter-section" style="margin-top: 2rem;">
+                    <h2 class="section-title">Newsletter</h2>
+                    <p style="color: #bbb; margin-bottom: 1rem;">Stay updated with the latest hardware trends and price drops</p>
+                    
+                    <!-- Success Message (hidden by default) -->
+                    <div class="success-message" id="successMessage">
+                        <div class="success-icon">✅</div>
+                        <div class="success-content">
+                            <h4>Successfully Subscribed!</h4>
+                            <p>Thank you for subscribing to our newsletter. You'll receive updates on hardware trends and price drops.</p>
+                        </div>
+                    </div>
+
+                    <form class="newsletter-form" name="newsletter" method="POST" data-netlify="true" data-netlify-honeypot="bot-field" id="newsletterForm">
+                        <!-- Honeypot field to prevent spam -->
+                        <div style="display: none;">
+                            <label>Don't fill this out if you're human: <input name="bot-field" /></label>
+                        </div>
+                        <input type="hidden" name="form-name" value="newsletter" />
+                        
+                        <div class="form-group">
+                            <label class="form-label">Name</label>
+                            <input type="text" class="form-input" name="name" placeholder="Your name" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-input" name="email" placeholder="your@email.com" required>
+                        </div>
+                        <button type="submit" class="submit-button">Subscribe</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Matrix Rain Effect
+        const canvas = document.getElementById('matrix-canvas');
+        const ctx = canvas.getContext('2d');
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const matrix = "ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789@#$%^&*()*&^%+-/~{[|`]}";
+        const chars = matrix.split("");
+        const fontSize = 14;
+        const columns = canvas.width / fontSize;
+        const drops = [];
+
+        for (let x = 0; x < columns; x++) {
+            drops[x] = Math.random() * canvas.height;
+        }
+
+        function drawMatrix() {
+            ctx.fillStyle = "rgba(0, 0, 0, 0.04)";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = "#8A2BE2";
+            ctx.font = fontSize + "px monospace";
+
+            for (let i = 0; i < drops.length; i++) {
+                const text = chars[Math.floor(Math.random() * chars.length)];
+                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+                if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                    drops[i] = 0;
+                }
+                drops[i]++;
+            }
+        }
+
+        setInterval(drawMatrix, 35);
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+
+        // Hardware Components Data (Fictitious)
+        const hardwareComponents = [
+            {
+                name: 'Graphics Cards',
+                icon: '🎮',
+                models: [
+                    'RTX 4090', 'RTX 4080', 'RTX 4070 Ti', 'RTX 4070', 'RTX 4060 Ti', 'RTX 4060',
+                    'RX 7900 XTX', 'RX 7900 XT', 'RX 7800 XT', 'RX 7700 XT', 'RX 7600'
+                ],
+                prices: [
+                    { date: 'Jan', values: [1599, 1199, 799, 599, 499, 299, 899, 799, 549, 449, 269] },
+                    { date: 'Feb', values: [1549, 1149, 779, 589, 479, 289, 869, 779, 539, 439, 259] },
+                    { date: 'Mar', values: [1499, 1099, 749, 579, 459, 279, 849, 759, 529, 429, 249] },
+                    { date: 'Apr', values: [1459, 1079, 729, 569, 449, 269, 829, 739, 519, 419, 239] },
+                    { date: 'May', values: [1439, 1049, 699, 559, 439, 259, 799, 719, 509, 409, 229] },
+                    { date: 'Jun', values: [1399, 999, 679, 549, 429, 249, 779, 699, 499, 399, 219] }
+                ]
+            },
+            {
+                name: 'CPUs',
+                icon: '🔧',
+                models: [
+                    'i9-14900K', 'i9-14900KF', 'i7-14700K', 'i7-14700KF', 'i5-14600K', 'i5-14600KF',
+                    'i9-13900K', 'i7-13700K', 'Ryzen 9 7950X', 'Ryzen 9 7900X', 'Ryzen 7 7700X',
+                    'Ryzen 5 7600X', 'Ryzen 9 5950X', 'Ryzen 7 5800X3D'
+                ],
+                prices: [
+                    { date: 'Jan', values: [589, 564, 419, 394, 329, 304, 569, 409, 699, 549, 399, 299, 549, 449] },
+                    { date: 'Feb', values: [579, 554, 409, 384, 319, 294, 559, 399, 679, 539, 389, 289, 539, 439] },
+                    { date: 'Mar', values: [569, 544, 399, 374, 309, 284, 549, 389, 659, 529, 379, 279, 529, 429] },
+                    { date: 'Apr', values: [559, 534, 389, 364, 299, 274, 539, 379, 639, 519, 369, 269, 519, 419] },
+                    { date: 'May', values: [549, 524, 379, 354, 289, 264, 529, 369, 619, 509, 359, 259, 509, 409] },
+                    { date: 'Jun', values: [539, 514, 369, 344, 279, 254, 519, 359, 599, 499, 349, 249, 499, 399] }
+                ]
+            },
+            {
+                name: 'RAM',
+                icon: '💾',
+                models: [
+                    'DDR5 32GB 6000MHz', 'DDR5 32GB 5600MHz', 'DDR5 16GB 6000MHz',
+                    'DDR4 32GB 3600MHz', 'DDR4 32GB 3200MHz', 'DDR4 16GB 3600MHz', 'DDR4 16GB 3200MHz'
+                ],
+                prices: [
+                    { date: 'Jan', values: [149, 129, 79, 89, 79, 49, 39] },
+                    { date: 'Feb', values: [145, 125, 75, 85, 75, 45, 35] },
+                    { date: 'Mar', values: [139, 119, 69, 79, 69, 39, 29] },
+                    { date: 'Apr', values: [135, 115, 65, 75, 65, 35, 25] },
+                    { date: 'May', values: [129, 109, 59, 69, 59, 29, 19] },
+                    { date: 'Jun', values: [119, 99, 49, 65, 55, 25, 15] }
+                ]
+            },
+            {
+                name: 'SSDs',
+                icon: '💿',
+                models: [
+                    'Samsung 990 PRO 2TB', 'Samsung 990 PRO 1TB', 'WD Black SN850X 2TB', 'WD Black SN850X 1TB',
+                    'Crucial T700 2TB', 'Crucial T700 1TB', 'Kingston KC3000 2TB', 'Samsung 980 PRO 2TB',
+                    'WD Black SN770 2TB', 'Crucial P5 Plus 2TB'
+                ],
+                prices: [
+                    { date: 'Jan', values: [189, 109, 179, 99, 249, 139, 159, 169, 139, 149] },
+                    { date: 'Feb', values: [179, 99, 169, 89, 239, 129, 149, 159, 129, 139] },
+                    { date: 'Mar', values: [169, 89, 159, 79, 229, 119, 139, 149, 119, 129] },
+                    { date: 'Apr', values: [159, 79, 149, 69, 219, 109, 129, 139, 109, 119] },
+                    { date: 'May', values: [149, 69, 139, 59, 209, 99, 119, 129, 99, 109] },
+                    { date: 'Jun', values: [139, 59, 129, 49, 199, 89, 109, 119, 89, 99] }
+                ]
+            }
+        ];
+
+        // News Data (Fictitious)
+        const newsData = [
+            {
+                date: 'Dec 29, 2025',
+                title: 'NVIDIA Announces RTX 5090 with Revolutionary AI Performance',
+                summary: 'NVIDIA unveils next-generation GPU with 50% performance increase and advanced ray tracing capabilities...'
+            },
+            {
+                date: 'Dec 28, 2025',
+                title: 'DDR5 Prices Drop to All-Time Low Amid Increased Production',
+                summary: 'Major memory manufacturers report surplus inventory, leading to significant price reductions across all DDR5 SKUs...'
+            },
+            {
+                date: 'Dec 27, 2025',
+                title: 'AMD Ryzen 8000 Series Benchmarks Leak Online',
+                summary: 'Early performance results show impressive gains in both single and multi-threaded workloads compared to previous generation...'
+            }
+        ];
+
+        // Generate Component Menu
+        const componentMenu = document.getElementById('componentMenu');
+        let charts = {};
+
+        hardwareComponents.forEach((component, index) => {
+            const item = document.createElement('div');
+            item.className = 'component-item';
+            item.innerHTML = `
+                <div class="component-header">
+                    <span class="component-name">${component.icon} ${component.name}</span>
+                    <span class="component-icon">▼</span>
+                </div>
+                <div class="component-content">
+                    <div class="chart-container">
+                        <div class="chart-wrapper">
+                            <canvas id="chart-${index}"></canvas>
+                        </div>
+                        <div class="model-list">
+                            ${component.models.map((model, i) => {
+                                const colors = [
+                                    'rgba(138, 43, 226, 0.8)',   // Purple
+                                    'rgba(75, 192, 192, 0.8)',   // Teal
+                                    'rgba(255, 206, 86, 0.8)',   // Yellow
+                                    'rgba(255, 99, 132, 0.8)',   // Pink
+                                    'rgba(54, 162, 235, 0.8)',   // Blue
+                                    'rgba(255, 159, 64, 0.8)',   // Orange
+                                    'rgba(153, 102, 255, 0.8)',  // Light Purple
+                                    'rgba(201, 203, 207, 0.8)',  // Gray
+                                    'rgba(255, 99, 71, 0.8)',    // Tomato
+                                    'rgba(144, 238, 144, 0.8)',  // Light Green
+                                    'rgba(255, 182, 193, 0.8)',  // Light Pink
+                                    'rgba(135, 206, 250, 0.8)',  // Sky Blue
+                                    'rgba(255, 215, 0, 0.8)',    // Gold
+                                    'rgba(147, 112, 219, 0.8)'   // Medium Purple
+                                ];
+                                const color = colors[i % colors.length];
+                                return `<span class="model-tag" data-model-index="${i}" style="background: ${color.replace('0.8', '0.15')}; border-color: ${color}; color: #fff;">${model}</span>`;
+                            }).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            const header = item.querySelector('.component-header');
+            header.addEventListener('click', () => {
+                const wasActive = item.classList.contains('active');
+                
+                // Close all items
+                document.querySelectorAll('.component-item').forEach(el => {
+                    el.classList.remove('active');
+                });
+
+                // Open clicked item if it wasn't active
+                if (!wasActive) {
+                    item.classList.add('active');
+                    
+                    // Create chart if it doesn't exist
+                    if (!charts[`chart-${index}`]) {
+                        setTimeout(() => {
+                            const ctx = document.getElementById(`chart-${index}`);
+                            
+                            // Define colors for each model
+                            const colors = [
+                                'rgba(138, 43, 226, 0.8)',   // Purple
+                                'rgba(75, 192, 192, 0.8)',   // Teal
+                                'rgba(255, 206, 86, 0.8)',   // Yellow
+                                'rgba(255, 99, 132, 0.8)',   // Pink
+                                'rgba(54, 162, 235, 0.8)',   // Blue
+                                'rgba(255, 159, 64, 0.8)',   // Orange
+                                'rgba(153, 102, 255, 0.8)',  // Light Purple
+                                'rgba(201, 203, 207, 0.8)',  // Gray
+                                'rgba(255, 99, 71, 0.8)',    // Tomato
+                                'rgba(144, 238, 144, 0.8)',  // Light Green
+                                'rgba(255, 182, 193, 0.8)',  // Light Pink
+                                'rgba(135, 206, 250, 0.8)',  // Sky Blue
+                                'rgba(255, 215, 0, 0.8)',    // Gold
+                                'rgba(147, 112, 219, 0.8)'   // Medium Purple
+                            ];
+                            
+                            const datasets = component.models.map((model, i) => {
+                                return {
+                                    label: model,
+                                    data: component.prices.map(p => p.values[i]),
+                                    borderColor: colors[i % colors.length],
+                                    backgroundColor: colors[i % colors.length].replace('0.8', '0.2'),
+                                    tension: 0.4,
+                                    fill: false
+                                };
+                            });
+
+                            charts[`chart-${index}`] = new Chart(ctx, {
+                                type: 'line',
+                                data: {
+                                    labels: component.prices.map(p => p.date),
+                                    datasets: datasets
+                                },
+                                options: {
+                                    responsive: true,
+                                    maintainAspectRatio: false,
+                                    interaction: {
+                                        mode: 'index',
+                                        intersect: false,
+                                    },
+                                    plugins: {
+                                        legend: {
+                                            display: false
+                                        }
+                                    },
+                                    scales: {
+                                        y: {
+                                            beginAtZero: false,
+                                            ticks: {
+                                                color: '#8A2BE2',
+                                                callback: function(value) {
+                                                    return '$' + value;
+                                                }
+                                            },
+                                            grid: {
+                                                color: 'rgba(138, 43, 226, 0.1)'
+                                            }
+                                        },
+                                        x: {
+                                            ticks: {
+                                                color: '#8A2BE2'
+                                            },
+                                            grid: {
+                                                color: 'rgba(138, 43, 226, 0.1)'
+                                            }
+                                        }
+                                    }
+                                }
+                            });
+                        }, 100);
+                    }
+                }
+            });
+
+            componentMenu.appendChild(item);
+
+            // Add click event to model tags
+            const modelTags = item.querySelectorAll('.model-tag');
+            modelTags.forEach(tag => {
+                tag.addEventListener('click', function() {
+                    const modelIndex = parseInt(this.getAttribute('data-model-index'));
+                    const chartInstance = charts[`chart-${index}`];
+                    
+                    if (chartInstance) {
+                        if (chartInstance.isDatasetVisible(modelIndex)) {
+                            chartInstance.hide(modelIndex);
+                            this.classList.add('hidden');
+                        } else {
+                            chartInstance.show(modelIndex);
+                            this.classList.remove('hidden');
+                        }
+                    }
+                });
+            });
+        });
+
+        // Generate News
+        const newsGrid = document.getElementById('newsGrid');
+        newsData.forEach(news => {
+            const card = document.createElement('div');
+            card.className = 'news-card';
+            card.innerHTML = `
+                <div class="news-date">${news.date}</div>
+                <div class="news-title">${news.title}</div>
+                <div class="news-summary">${news.summary}</div>
+            `;
+            newsGrid.appendChild(card);
+        });
+
+        // Newsletter Form Handler
+        const newsletterForm = document.getElementById('newsletterForm');
+        const successMessage = document.getElementById('successMessage');
+
+        newsletterForm.addEventListener('submit', function(e) {
+            e.preventDefault(); // Prevent default form submission
+            
+            // Check if form is valid
+            if (newsletterForm.checkValidity()) {
+                // Get form data
+                const formData = new FormData(newsletterForm);
+                
+                // Check if running on Netlify or locally
+                const isLocalhost = window.location.hostname === 'localhost' || 
+                                   window.location.hostname === '127.0.0.1' || 
+                                   window.location.protocol === 'file:';
+                
+                if (isLocalhost) {
+                    // Local testing - just show success message
+                    console.log('Local mode: Form data:', Object.fromEntries(formData));
+                    successMessage.classList.add('show');
+                    setTimeout(() => {
+                        newsletterForm.style.display = 'none';
+                    }, 500);
+                } else {
+                    // Production - Submit to Netlify
+                    fetch('/', {
+                        method: 'POST',
+                        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                        body: new URLSearchParams(formData).toString()
+                    })
+                    .then(() => {
+                        // Show success message
+                        successMessage.classList.add('show');
+                        
+                        // Hide the form after submission
+                        setTimeout(() => {
+                            newsletterForm.style.display = 'none';
+                        }, 500);
+                    })
+                    .catch((error) => {
+                        console.error('Error:', error);
+                        alert('There was an error submitting the form. Please try again.');
+                    });
+                }
+            }
+        });
+
+        // Newsletter Form - Netlify handles submission automatically
+        // No custom JavaScript needed as Netlify Forms will process it
+    </script>
+</body>
+</html>

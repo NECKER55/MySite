@@ -1,0 +1,4 @@
+[2025-12-29T20:14:13.049313] Name: Test User | Email: test@example.com
+[2025-12-29T20:14:17.848449] Name: Mario Rossi | Email: mario@example.com
+[2025-12-29T20:14:53.444219] Name: andrea | Email: aven00004@gmail.com
+[2025-12-29T20:14:55.512417] Name: andrea | Email: aven00004@gmail.com
