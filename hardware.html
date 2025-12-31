@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hardware Tracker - Andrea Veneroni</title>
+    <title>AI Hardware Price Predictor - Andrea Veneroni</title>
     <style>
         /* 1. General Reset & Body */
         * {
@@ -283,6 +283,42 @@
             font-size: 0.85rem;
             margin-bottom: 0.5rem;
             text-shadow: 0 0 10px rgba(138, 43, 226, 0.6);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .importance-indicator {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            font-size: 0.75rem;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .importance-high {
+            background: rgba(220, 53, 69, 0.3);
+            border: 2px solid #dc3545;
+            color: #ff6b6b;
+            box-shadow: 0 0 10px rgba(220, 53, 69, 0.4);
+        }
+
+        .importance-medium {
+            background: rgba(255, 193, 7, 0.3);
+            border: 2px solid #ffc107;
+            color: #ffd93d;
+            box-shadow: 0 0 10px rgba(255, 193, 7, 0.4);
+        }
+
+        .importance-low {
+            background: rgba(40, 167, 69, 0.3);
+            border: 2px solid #28a745;
+            color: #6bff6b;
+            box-shadow: 0 0 10px rgba(40, 167, 69, 0.4);
         }
 
         .news-title {
@@ -481,6 +517,43 @@
             line-height: 1.5;
         }
 
+        /* Price Volatility Section */
+        .volatility-section {
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(138, 43, 226, 0.2);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            opacity: 0;
+            animation: fadeInUp 1s ease forwards 0.3s;
+            margin-top: 2rem;
+        }
+
+        .volatility-chart-wrapper {
+            position: relative;
+            height: 300px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(138, 43, 226, 0.1);
+            border-radius: 10px;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+
+        .volatility-legend {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: rgba(138, 43, 226, 0.05);
+            border-radius: 10px;
+            font-size: 0.85rem;
+            color: #bbb;
+            line-height: 1.6;
+        }
+
+        .volatility-legend strong {
+            color: #8A2BE2;
+        }
+
         /* 10. Animations */
         @keyframes fadeInUp {
             from {
@@ -514,8 +587,8 @@
         <a href="index.html" class="back-button">← Back to Home</a>
         
         <div class="header">
-            <h1>Hardware Tracker</h1>
-            <p class="subtitle">Real-time price monitoring and tech news</p>
+            <h1>AI Hardware Price Predictor</h1>
+            <p class="subtitle">Daily updated AI predictions for future hardware component prices</p>
         </div>
 
         <!-- Warning Banner -->
@@ -531,20 +604,21 @@
         <div class="description-section">
             <h3>🤖 How it Works</h3>
             <p>
-                This hardware tracking system utilizes a <strong>pre-trained machine learning model</strong> combined with a 
-                multi-stage pipeline to deliver comprehensive market insights:
+                This <strong>AI agent</strong> runs <strong>daily automated predictions</strong> to forecast future hardware component prices. 
+                The system continuously learns and updates its forecasts by analyzing multiple market factors:
             </p>
             <p>
-                <strong>1. Data Extraction:</strong> Automated web scraping collects real-time pricing data from major retailers and marketplaces.<br>
-                <strong>2. News Aggregation:</strong> Natural language processing filters and summarizes relevant hardware news from trusted tech sources.<br>
-                <strong>3. Price Prediction:</strong> Time-series analysis and predictive modeling estimate future price trends based on historical data and market patterns.<br>
-                <strong>4. Visualization:</strong> Interactive charts display price evolution and allow easy comparison between different models.
+                <strong>1. Multi-Source Data Collection:</strong> The agent scrapes pricing data from major retailers, marketplaces, and e-commerce platforms every 24 hours.<br>
+                <strong>2. Market Analysis:</strong> Analyzes supply chain trends, product launch cycles, cryptocurrency mining demand, seasonal patterns, and global chip shortages.<br>
+                <strong>3. News Sentiment Analysis:</strong> Natural language processing evaluates tech news sentiment to detect emerging price-affecting events.<br>
+                <strong>4. Daily Price Forecasting:</strong> Machine learning models predict price movements for the next 30-90 days based on historical patterns and current market conditions.<br>
+                <strong>5. Automatic Updates:</strong> Predictions are recalculated and updated every day to reflect the latest market data and trends.
             </p>
             <div class="tech-list">
-                <span class="tech-tag">🧠 Machine Learning</span>
-                <span class="tech-tag">📊 Data Analysis</span>
-                <span class="tech-tag">🔄 Real-time Updates</span>
-                <span class="tech-tag">📈 Price Forecasting</span>
+                <span class="tech-tag">🤖 AI Agent</span>
+                <span class="tech-tag">📅 Daily Updates</span>
+                <span class="tech-tag">🔮 Price Predictions</span>
+                <span class="tech-tag">📊 Multi-Factor Analysis</span>
             </div>
         </div>
 
@@ -555,6 +629,24 @@
                     <h2 class="section-title">Hardware Components</h2>
                     <div class="component-menu" id="componentMenu">
                         <!-- Components will be generated by JavaScript -->
+                    </div>
+                </div>
+
+                <!-- Price Volatility Section -->
+                <div class="volatility-section">
+                    <h2 class="section-title">30-Day Price Trend Forecast</h2>
+                    <p style="color: #bbb; margin-bottom: 1rem; font-size: 0.95rem;">
+                        AI-predicted price changes for the next 30 days (updated daily)
+                    </p>
+                    <div class="volatility-chart-wrapper">
+                        <canvas id="volatilityChart"></canvas>
+                    </div>
+                    <div class="volatility-legend">
+                        <strong>💡 Understanding the Forecast:</strong><br>
+                        The AI agent analyzes market trends, news sentiment, and historical patterns to predict price movements. 
+                        <span style="color: #28a745;">Green bars</span> indicate predicted price drops (good time to buy), 
+                        while <span style="color: #dc3545;">red bars</span> suggest upcoming price increases. 
+                        Predictions are recalculated daily as new market data becomes available.
                     </div>
                 </div>
             </div>
@@ -717,22 +809,25 @@
             }
         ];
 
-        // News Data (Fictitious)
+        // News Data (Fictitious) - Limited to top 3 with importance levels
         const newsData = [
             {
                 date: 'Dec 29, 2025',
                 title: 'NVIDIA Announces RTX 5090 with Revolutionary AI Performance',
-                summary: 'NVIDIA unveils next-generation GPU with 50% performance increase and advanced ray tracing capabilities...'
+                summary: 'NVIDIA unveils next-generation GPU with 50% performance increase and advanced ray tracing capabilities...',
+                importance: 'high' // high = major market impact
             },
             {
                 date: 'Dec 28, 2025',
                 title: 'DDR5 Prices Drop to All-Time Low Amid Increased Production',
-                summary: 'Major memory manufacturers report surplus inventory, leading to significant price reductions across all DDR5 SKUs...'
+                summary: 'Major memory manufacturers report surplus inventory, leading to significant price reductions across all DDR5 SKUs...',
+                importance: 'medium' // medium = moderate price impact
             },
             {
                 date: 'Dec 27, 2025',
                 title: 'AMD Ryzen 8000 Series Benchmarks Leak Online',
-                summary: 'Early performance results show impressive gains in both single and multi-threaded workloads compared to previous generation...'
+                summary: 'Early performance results show impressive gains in both single and multi-threaded workloads compared to previous generation...',
+                importance: 'low' // low = informational, minor impact
             }
         ];
 
@@ -895,13 +990,118 @@
             });
         });
 
-        // Generate News
+        // Create Price Trend Chart
+        const volatilityCtx = document.getElementById('volatilityChart');
+        
+        // Fictitious price trend data (positive = increase, negative = decrease)
+        const priceTrendData = {
+            labels: ['Graphics Cards', 'CPUs', 'RAM', 'SSDs'],
+            trends: [-12.5, +3.8, -8.2, +15.3] // Percentage change from 30 days ago (fictitious)
+        };
+        
+        // Generate colors based on trend direction
+        const trendColors = priceTrendData.trends.map(trend => {
+            if (trend > 10) return 'rgba(220, 53, 69, 0.8)'; // Red (strong increase)
+            if (trend > 0) return 'rgba(255, 193, 7, 0.8)';  // Orange (slight increase)
+            if (trend > -10) return 'rgba(40, 167, 69, 0.8)'; // Green (slight decrease)
+            return 'rgba(25, 135, 84, 0.8)';                  // Dark green (strong decrease)
+        });
+        
+        const trendBorderColors = priceTrendData.trends.map(trend => {
+            if (trend > 10) return 'rgba(220, 53, 69, 1)';
+            if (trend > 0) return 'rgba(255, 193, 7, 1)';
+            if (trend > -10) return 'rgba(40, 167, 69, 1)';
+            return 'rgba(25, 135, 84, 1)';
+        });
+        
+        new Chart(volatilityCtx, {
+            type: 'bar',
+            data: {
+                labels: priceTrendData.labels,
+                datasets: [{
+                    label: 'Price Trend (30 days)',
+                    data: priceTrendData.trends,
+                    backgroundColor: trendColors,
+                    borderColor: trendBorderColors,
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                indexAxis: 'y', // Horizontal chart for better readability
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const value = context.parsed.x;
+                                const direction = value > 0 ? '📈 Rising' : '📉 Falling';
+                                return direction + ': ' + Math.abs(value).toFixed(1) + '%';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: {
+                            color: '#8A2BE2',
+                            callback: function(value) {
+                                return (value > 0 ? '+' : '') + value + '%';
+                            }
+                        },
+                        grid: {
+                            color: function(context) {
+                                return context.tick.value === 0 ? 'rgba(138, 43, 226, 0.5)' : 'rgba(138, 43, 226, 0.1)';
+                            },
+                            lineWidth: function(context) {
+                                return context.tick.value === 0 ? 2 : 1;
+                            }
+                        },
+                        title: {
+                            display: true,
+                            text: 'Price Change (Last 30 Days)',
+                            color: '#8A2BE2',
+                            font: {
+                                size: 13,
+                                weight: 'bold'
+                            }
+                        }
+                    },
+                    y: {
+                        ticks: {
+                            color: '#8A2BE2',
+                            font: {
+                                size: 12,
+                                weight: 'bold'
+                            }
+                        },
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+
+        // Generate News with Importance Indicators
         const newsGrid = document.getElementById('newsGrid');
+        const importanceLabels = {
+            'high': '🔴',
+            'medium': '🟡',
+            'low': '🟢'
+        };
+        
         newsData.forEach(news => {
             const card = document.createElement('div');
             card.className = 'news-card';
             card.innerHTML = `
-                <div class="news-date">${news.date}</div>
+                <div class="news-date">
+                    <span class="importance-indicator importance-${news.importance}">${importanceLabels[news.importance]}</span>
+                    <span>${news.date}</span>
+                </div>
                 <div class="news-title">${news.title}</div>
                 <div class="news-summary">${news.summary}</div>
             `;

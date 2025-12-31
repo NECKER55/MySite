@@ -220,6 +220,213 @@
             text-align: center;
         }
 
+        /* Hardware Preview Section */
+        .hardware-preview-section {
+            margin-top: 3rem;
+            width: 100%;
+        }
+
+        .hardware-preview-link {
+            display: block;
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(12px);
+            border: 2px solid rgba(138, 43, 226, 0.3);
+            border-radius: 20px;
+            padding: 2.5rem;
+            transition: all 0.4s ease;
+            text-decoration: none;
+            color: inherit;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3), inset 0 0 30px rgba(138, 43, 226, 0.05);
+        }
+
+        .hardware-preview-link:hover {
+            transform: translateY(-5px);
+            border-color: rgba(138, 43, 226, 0.6);
+            background: rgba(138, 43, 226, 0.05);
+            box-shadow: 0 20px 60px rgba(138, 43, 226, 0.3), inset 0 0 40px rgba(138, 43, 226, 0.1);
+        }
+
+        .hardware-preview-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .hardware-preview-header h3 {
+            font-size: 2rem;
+            color: #8A2BE2;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 0 30px rgba(138, 43, 226, 1);
+        }
+
+        .hardware-subtitle {
+            color: #bbb;
+            font-size: 1.1rem;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+
+        .hardware-preview-content {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .preview-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+        }
+
+        .stat-item {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(138, 43, 226, 0.2);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .stat-item:hover {
+            background: rgba(138, 43, 226, 0.08);
+            border-color: rgba(138, 43, 226, 0.4);
+            transform: translateY(-3px);
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #8A2BE2;
+            text-shadow: 0 0 20px rgba(138, 43, 226, 0.8);
+            margin-bottom: 0.3rem;
+        }
+
+        .stat-label {
+            color: #ddd;
+            font-size: 0.95rem;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .stat-detail {
+            color: #888;
+            font-size: 0.85rem;
+        }
+
+        .preview-features {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+
+        .feature-tag {
+            padding: 0.75rem 1.25rem;
+            background: rgba(138, 43, 226, 0.1);
+            border: 1px solid rgba(138, 43, 226, 0.3);
+            border-radius: 10px;
+            color: #8A2BE2;
+            font-size: 0.95rem;
+            text-align: center;
+            text-shadow: 0 0 10px rgba(138, 43, 226, 0.6);
+            transition: all 0.3s ease;
+        }
+
+        .feature-tag:hover {
+            background: rgba(138, 43, 226, 0.2);
+            border-color: rgba(138, 43, 226, 0.5);
+        }
+
+        .preview-mockup {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(138, 43, 226, 0.2);
+            border-radius: 12px;
+            padding: 2rem;
+            position: relative;
+        }
+
+        .mockup-chart {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-around;
+            height: 150px;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .chart-bar {
+            flex: 1;
+            border-radius: 8px 8px 0 0;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 15px rgba(138, 43, 226, 0.3);
+        }
+
+        .hardware-preview-link:hover .chart-bar {
+            transform: scaleY(1.05);
+        }
+
+        .mockup-labels {
+            display: flex;
+            justify-content: space-around;
+            gap: 1rem;
+        }
+
+        .mockup-labels span {
+            flex: 1;
+            text-align: center;
+            color: #8A2BE2;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .hardware-preview-cta {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(138, 43, 226, 0.2);
+        }
+
+        .cta-text {
+            color: #8A2BE2;
+            font-size: 1.2rem;
+            font-weight: 600;
+            text-shadow: 0 0 15px rgba(138, 43, 226, 0.8);
+        }
+
+        .cta-arrow {
+            font-size: 1.5rem;
+            color: #8A2BE2;
+            transition: transform 0.3s ease;
+        }
+
+        .hardware-preview-link:hover .cta-arrow {
+            transform: translateX(10px);
+        }
+
+        /* Responsive adjustments for hardware preview */
+        @media (max-width: 768px) {
+            .preview-stats {
+                grid-template-columns: 1fr;
+            }
+            
+            .preview-features {
+                grid-template-columns: 1fr;
+            }
+            
+            .hardware-preview-header h3 {
+                font-size: 1.5rem;
+            }
+            
+            .stat-value {
+                font-size: 2rem;
+            }
+            
+            /* Hide model indicator on mobile */
+            .model-hover-indicator {
+                display: none;
+            }
+        }
+
         /* 5. University / Timeline Section */
         .timeline {
             position: relative;
@@ -392,9 +599,9 @@
         /* 7. 3D Model Tooltip */
         .model-tooltip {
             position: fixed;
-            background: rgba(138, 43, 226, 0.1);
+            background: rgba(138, 43, 226, 0.15);
             backdrop-filter: blur(10px);
-            border: 1px solid rgba(138, 43, 226, 0.3);
+            border: 2px solid rgba(138, 43, 226, 0.5);
             color: #8A2BE2;
             padding: 1rem 2rem;
             border-radius: 50px;
@@ -407,14 +614,29 @@
             z-index: 1;
             box-shadow: 0 5px 25px rgba(138, 43, 226, 0.3);
             text-shadow: 0 0 15px rgba(138, 43, 226, 0.8);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
         }
 
         .model-tooltip.visible {
             opacity: 1;
             transform: translate(-50%, -150%) scale(1);
-            background: rgba(138, 43, 226, 0.2);
-            border-color: rgba(138, 43, 226, 0.5);
+            background: rgba(138, 43, 226, 0.25);
+            border-color: rgba(138, 43, 226, 0.7);
             box-shadow: 0 8px 35px rgba(138, 43, 226, 0.5);
+            animation: tooltipPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes tooltipPulse {
+            0%, 100% {
+                box-shadow: 0 8px 35px rgba(138, 43, 226, 0.5);
+                border-color: rgba(138, 43, 226, 0.7);
+            }
+            50% {
+                box-shadow: 0 8px 45px rgba(138, 43, 226, 0.8);
+                border-color: rgba(138, 43, 226, 1);
+            }
         }
 
         .model-tooltip::after {
@@ -427,11 +649,86 @@
             height: 0;
             border-left: 8px solid transparent;
             border-right: 8px solid transparent;
-            border-top: 8px solid rgba(138, 43, 226, 0.3);
+            border-top: 8px solid rgba(138, 43, 226, 0.5);
         }
 
         .model-tooltip.visible::after {
-            border-top-color: rgba(138, 43, 226, 0.5);
+            border-top-color: rgba(138, 43, 226, 0.7);
+        }
+
+        .tooltip-icon {
+            font-size: 1.3rem;
+            animation: clickHint 1.5s ease-in-out infinite;
+        }
+
+        @keyframes clickHint {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+
+        /* Model Hover Indicator - Always Visible */
+        .model-hover-indicator {
+            position: fixed;
+            left: 22.5%;
+            bottom: 10%;
+            transform: translateX(-50%);
+            background: rgba(138, 43, 226, 0.2);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(138, 43, 226, 0.6);
+            border-radius: 20px;
+            padding: 1rem 1.5rem;
+            z-index: 2;
+            pointer-events: none;
+            animation: indicatorFloat 3s ease-in-out infinite;
+            box-shadow: 0 5px 30px rgba(138, 43, 226, 0.4);
+        }
+
+        @keyframes indicatorFloat {
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            50% { transform: translateX(-50%) translateY(-10px); }
+        }
+
+        .model-hover-indicator.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .indicator-content {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: #8A2BE2;
+            font-weight: 600;
+            text-shadow: 0 0 15px rgba(138, 43, 226, 0.8);
+        }
+
+        .indicator-icon {
+            font-size: 1.5rem;
+            animation: rotateIcon 2s linear infinite;
+        }
+
+        @keyframes rotateIcon {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .indicator-text {
+            font-size: 1rem;
+        }
+
+        .click-cursor {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: #8A2BE2;
+            border-radius: 50%;
+            margin-left: 0.5rem;
+            animation: cursorBlink 1s ease-in-out infinite;
+        }
+
+        @keyframes cursorBlink {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.3; transform: scale(1.3); }
         }
 
         /* 8. Academic Journey / Course Tree (Desktop) */
@@ -665,7 +962,19 @@
 
     <div id="loading">Loading 3D Model...</div>
     <div id="error"></div>
-    <div class="model-tooltip" id="model-tooltip">Robotics Projects</div>
+    <div class="model-tooltip" id="model-tooltip">
+        <span class="tooltip-icon">👆</span>
+        <span>Click for Robotics Projects</span>
+    </div>
+    
+    <!-- Hover Indicator - Always visible until interaction -->
+    <div class="model-hover-indicator" id="model-indicator">
+        <div class="indicator-content">
+            <span class="indicator-icon">🤖</span>
+            <span class="indicator-text">Hover on the robot</span>
+            <span class="click-cursor"></span>
+        </div>
+    </div>
 
     <div class="mobile-nav-button" id="mobile-nav-button">
         <span></span>
@@ -711,10 +1020,62 @@
                         <h3>University Projects</h3>
                         <p>A collection of academic projects, showcasing my skills in software engineering, data analysis, and algorithm design.</p>
                     </a>
-                    <a href="hardware.html" class="project-button">
-                        <span class="icon">💻</span>
-                        <h3>Hardware Tracker</h3>
-                        <p>Real-time hardware price monitoring, tech news, and market trends for PC components.</p>
+                </div>
+
+                <!-- Hardware Tracker Preview Section -->
+                <div class="hardware-preview-section">
+                    <a href="hardware.html" class="hardware-preview-link">
+                        <div class="hardware-preview-header">
+                            <h3>🤖 AI Hardware Price Predictor</h3>
+                            <p class="hardware-subtitle">Daily AI-powered predictions for PC component pricing</p>
+                        </div>
+                        
+                        <div class="hardware-preview-content">
+                            <div class="preview-stats">
+                                <div class="stat-item">
+                                    <div class="stat-value">4</div>
+                                    <div class="stat-label">Categories</div>
+                                    <div class="stat-detail">GPUs • CPUs • RAM • SSDs</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-value">46</div>
+                                    <div class="stat-label">Models Tracked</div>
+                                    <div class="stat-detail">NVIDIA • AMD • Intel</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-value">24h</div>
+                                    <div class="stat-label">Update Frequency</div>
+                                    <div class="stat-detail">Real-time predictions</div>
+                                </div>
+                            </div>
+                            
+                            <div class="preview-features">
+                                <div class="feature-tag">📈 Price Trend Analysis</div>
+                                <div class="feature-tag">🔮 30-Day Forecasting</div>
+                                <div class="feature-tag">📰 Tech News Aggregation</div>
+                                <div class="feature-tag">🎯 ML-Based Predictions</div>
+                            </div>
+                            
+                            <div class="preview-mockup">
+                                <div class="mockup-chart">
+                                    <div class="chart-bar" style="height: 60%; background: linear-gradient(180deg, rgba(40, 167, 69, 0.6), rgba(40, 167, 69, 0.3));"></div>
+                                    <div class="chart-bar" style="height: 35%; background: linear-gradient(180deg, rgba(255, 193, 7, 0.6), rgba(255, 193, 7, 0.3));"></div>
+                                    <div class="chart-bar" style="height: 45%; background: linear-gradient(180deg, rgba(40, 167, 69, 0.6), rgba(40, 167, 69, 0.3));"></div>
+                                    <div class="chart-bar" style="height: 75%; background: linear-gradient(180deg, rgba(220, 53, 69, 0.6), rgba(220, 53, 69, 0.3));"></div>
+                                </div>
+                                <div class="mockup-labels">
+                                    <span>GPUs</span>
+                                    <span>CPUs</span>
+                                    <span>RAM</span>
+                                    <span>SSDs</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="hardware-preview-cta">
+                            <span class="cta-text">View Live Predictions</span>
+                            <span class="cta-arrow">→</span>
+                        </div>
                     </a>
                 </div>
             </section>
@@ -807,6 +1168,7 @@
         let isHovering = false;
         let modelTouched = false;
         let countdownInterval;
+        let modelIndicator;
 
         const container = document.getElementById('canvas-container');
         const loadingElement = document.getElementById('loading');
@@ -870,6 +1232,7 @@
             raycaster = new THREE.Raycaster();
             mouse = new THREE.Vector2();
             tooltip = document.getElementById('model-tooltip');
+            modelIndicator = document.getElementById('model-indicator');
 
             setupCameraPosition();
             setupLights();
@@ -1197,9 +1560,32 @@
             raycaster.setFromCamera(mouse, camera);
             const intersects = raycaster.intersectObject(model, true);
             if (intersects.length > 0 && !isHovering) {
-                isHovering = true; document.body.style.cursor = 'pointer'; tooltip.classList.add('visible'); model.scale.multiplyScalar(1.02);
+                isHovering = true; 
+                document.body.style.cursor = 'pointer'; 
+                tooltip.classList.add('visible'); 
+                model.scale.multiplyScalar(1.02);
+                // Hide indicator when hovering
+                if (modelIndicator && !modelIndicator.classList.contains('hidden')) {
+                    modelIndicator.style.transition = 'opacity 0.5s ease';
+                    modelIndicator.style.opacity = '0';
+                    setTimeout(() => {
+                        modelIndicator.classList.add('hidden');
+                    }, 500);
+                }
             } else if (intersects.length === 0 && isHovering) {
-                isHovering = false; document.body.style.cursor = 'default'; tooltip.classList.remove('visible'); model.scale.multiplyScalar(1 / 1.02); modelTouched = false;
+                isHovering = false; 
+                document.body.style.cursor = 'default'; 
+                tooltip.classList.remove('visible'); 
+                model.scale.multiplyScalar(1 / 1.02); 
+                modelTouched = false;
+                // Show indicator again when not hovering
+                if (modelIndicator) {
+                    modelIndicator.classList.remove('hidden');
+                    modelIndicator.style.transition = 'opacity 0.5s ease';
+                    setTimeout(() => {
+                        modelIndicator.style.opacity = '1';
+                    }, 50);
+                }
             }
         }
         
