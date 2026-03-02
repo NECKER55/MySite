@@ -1484,7 +1484,11 @@
         function updateCountdown() {
             const countdownEl = document.getElementById('graduation-countdown');
             if (!countdownEl) return;
-            const graduationDate = new Date('2026-02-24T10:00:00');
+
+            let graduationDate; // undefined
+
+            if (!graduationDate) return;
+
             const diff = graduationDate - new Date();
 
             if (diff > 0) {
@@ -1492,9 +1496,6 @@
                 document.getElementById('hours').textContent = Math.floor((diff / (1000*60*60)) % 24).toString().padStart(2, '0');
                 document.getElementById('minutes').textContent = Math.floor((diff / 1000/60) % 60).toString().padStart(2, '0');
                 document.getElementById('seconds').textContent = Math.floor((diff / 1000) % 60).toString().padStart(2, '0');
-            } else {
-                countdownEl.innerHTML = '<span style="color: #8A2BE2; font-size: 1.2rem;">🎓 Graduated! 🎉</span>';
-                clearInterval(countdownInterval);
             }
         }
         
