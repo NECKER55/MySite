@@ -495,47 +495,6 @@
             text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
         }
 
-        .countdown-container {
-            margin-top: 1.25rem;
-            padding: 1rem;
-            background: rgba(138, 43, 226, 0.05);
-            border-radius: 10px;
-            border: 1px solid rgba(138, 43, 226, 0.2);
-            backdrop-filter: blur(10px);
-        }
-
-        .countdown-label {
-            font-size: 0.9rem;
-            color: #8A2BE2;
-            margin-bottom: 0.6rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            text-shadow: 0 0 10px rgba(138, 43, 226, 0.8);
-        }
-
-        .countdown-display {
-            display: flex;
-            gap: 1rem;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-
-        .countdown-number {
-            font-size: 1.8rem;
-            font-weight: bold;
-            color: #8A2BE2;
-            text-shadow: 0 0 20px rgba(138, 43, 226, 1);
-            min-width: 40px;
-            text-align: center;
-            display: inline-block;
-        }
-
-        .countdown-unit {
-            font-size: 0.8rem;
-            color: #aaa;
-            margin-right: 0.6rem;
-            text-shadow: 0 0 5px rgba(138, 43, 226, 0.5);
-        }
 
         /* 6. Skills & Contact Section */
         .skills-grid {
@@ -768,6 +727,24 @@
             opacity: 1;
             transform: translateY(0);
         }
+
+        .course-tree-subtitle {
+            display: flex;
+            width: fit-content;
+            align-items: center;
+            gap: 0.5rem;
+            text-align: center;
+            color: #e7dcff;
+            margin: -2.6rem auto 3.2rem;
+            padding: 0.6rem 1.2rem;
+            font-size: 1.02rem;
+            letter-spacing: 0.4px;
+            border-radius: 999px;
+            border: 1px solid rgba(138, 43, 226, 0.45);
+            background: rgba(138, 43, 226, 0.12);
+            box-shadow: 0 10px 30px rgba(138, 43, 226, 0.25), inset 0 0 12px rgba(138, 43, 226, 0.2);
+            text-shadow: 0 0 18px rgba(138, 43, 226, 0.6);
+        }
         
         .course-tree-container {
             position: relative;
@@ -834,6 +811,58 @@
         .course-node.not-started { border-color: rgba(200, 200, 200, 0.2); box-shadow: 0 5px 25px rgba(0, 0, 0, 0.2), inset 0 0 20px rgba(200, 200, 200, 0.05); }
         .course-node.not-started .course-status { color: #bbbbbb; text-shadow: 0 0 10px rgba(200, 200, 200, 0.8); }
         .course-node.not-started:hover { border-color: rgba(200, 200, 200, 0.4); box-shadow: 0 10px 35px rgba(200, 200, 200, 0.3), inset 0 0 25px rgba(200, 200, 200, 0.1); }
+
+        .thesis-node {
+            position: absolute;
+            width: clamp(220px, 26vw, 320px);
+            padding: clamp(1rem, 2.4vw, 1.4rem);
+            background: rgba(138, 43, 226, 0.08);
+            backdrop-filter: blur(12px);
+            border-radius: 18px;
+            border: 1px solid rgba(138, 43, 226, 0.45);
+            text-align: center;
+            box-shadow: 0 10px 35px rgba(138, 43, 226, 0.35), inset 0 0 25px rgba(138, 43, 226, 0.15);
+            transform: translateY(20px);
+            opacity: 0;
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out, box-shadow 0.3s ease, border-color 0.3s ease;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .thesis-node.visible { opacity: 1; transform: translateY(0); }
+
+        .thesis-node:hover {
+            border-color: rgba(138, 43, 226, 0.8);
+            box-shadow: 0 14px 45px rgba(138, 43, 226, 0.5), inset 0 0 30px rgba(138, 43, 226, 0.2);
+        }
+
+        .thesis-node .course-icon { font-size: 2.6rem; }
+        .thesis-node .course-name { font-size: 1.25rem; }
+        .thesis-node .course-credits { font-size: 0.95rem; }
+        .thesis-node .course-status { font-size: 1rem; }
+
+        .thesis-mobile {
+            display: block;
+            margin-top: 1.5rem;
+            padding: 1.2rem 1.4rem;
+            background: rgba(138, 43, 226, 0.08);
+            border-radius: 16px;
+            border: 1px solid rgba(138, 43, 226, 0.45);
+            text-align: center;
+            box-shadow: 0 8px 28px rgba(138, 43, 226, 0.35), inset 0 0 20px rgba(138, 43, 226, 0.12);
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .thesis-mobile .course-icon { font-size: 2.4rem; }
+        .thesis-mobile .course-name { font-size: 1.2rem; font-weight: 600; }
+        .thesis-mobile .course-credits { font-size: 0.95rem; color: #c9c9c9; margin: 0.2rem 0; }
+        .thesis-mobile .course-status { font-size: 0.95rem; font-weight: 700; color: #5ac85a; text-shadow: 0 0 10px rgba(90, 200, 90, 0.8); }
+
+        .thesis-mobile:hover {
+            border-color: rgba(138, 43, 226, 0.7);
+            box-shadow: 0 12px 34px rgba(138, 43, 226, 0.45), inset 0 0 26px rgba(138, 43, 226, 0.18);
+        }
 
         .tree-connections { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
         .connection-path { fill: none; stroke: rgba(138, 43, 226, 0.3); stroke-width: 2; transition: stroke 0.3s ease, stroke-width 0.3s ease, opacity 0.3s ease, stroke-dashoffset 1s ease; opacity: 0; stroke-dasharray: 1000; stroke-dashoffset: 1000; }
@@ -1084,19 +1113,10 @@
                 <h2 class="section-title">University Path</h2>
                 <div class="timeline">
                     <div class="timeline-item">
-                        <div class="timeline-date">2023 - 2026</div>
+                        <div class="timeline-date">2023 - 2025</div>
                         <div class="timeline-title">Bachelor's Degree in Computer Science</div>
                         <div class="timeline-description">
                             University of Milan - Focused on software robotics and A.I.
-                        </div>
-                        <div class="countdown-container">
-                            <div class="countdown-label">Time to Graduation:</div>
-                            <div id="graduation-countdown" class="countdown-display">
-                                <span class="countdown-number" id="days">--</span><span class="countdown-unit">days</span>
-                                <span class="countdown-number" id="hours">--</span><span class="countdown-unit">hours</span>
-                                <span class="countdown-number" id="minutes">--</span><span class="countdown-unit">minutes</span>
-                                <span class="countdown-number" id="seconds">--</span><span class="countdown-unit">seconds</span>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -1127,6 +1147,7 @@
     
     <section class="course-tree-section" id="academic">
         <h2 class="course-tree-title">Academic Journey</h2>
+        <p class="course-tree-subtitle">⚡ Graduated in 2 years instead of the standard 3.</p>
         
         <div class="course-tree-container desktop-only">
             <svg class="tree-connections" id="tree-svg"></svg>
@@ -1153,6 +1174,12 @@
                 <button class="accordion-header" onclick="toggleAccordion(this)"><span>Extra Courses</span><span class="accordion-icon">▼</span></button>
                 <div class="accordion-content" id="extra-content"></div>
             </div>
+            <a class="thesis-mobile" id="thesis-mobile-node" href="tesi_english.pdf" target="_blank" rel="noopener">
+                <span class="course-icon">🎓</span>
+                <div class="course-name">Thesis</div>
+                <div class="course-credits">Final project</div>
+                <div class="course-status">Completed</div>
+            </a>
         </div>
     </section>
 
@@ -1167,7 +1194,6 @@
         let columns;
         let isHovering = false;
         let modelTouched = false;
-        let countdownInterval;
         let modelIndicator;
 
         const container = document.getElementById('canvas-container');
@@ -1243,6 +1269,7 @@
             setTimeout(() => {
                 createCourseNodes();
                 createMobileCourses();
+                createThesisNode();
                 drawConnections();
                 setupScrollAnimations();
             }, 100);
@@ -1369,7 +1396,7 @@
                     <span class="mobile-course-icon">${course.icon}</span>
                     <div class="mobile-course-info">
                         <div class="mobile-course-name">${course.name}</div>
-                        <div class="mobile-course-credits">${course.credits} CFU</div>
+                        <div class="mobile-course-credits">${course.credits} ECTS</div>
                     </div>
                     <span class="mobile-course-status">${getStatusText(course.status)}</span>
                 </div>
@@ -1395,6 +1422,8 @@
             const containerWidth = container.offsetWidth;
             const nodePositions = {};
             const nodeWidth = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--course-node-width') || '180');
+            const thesisWidth = 280;
+            const nodeHeight = 100;
             const horizontalPadding = 20;
             const verticalOffset = 50;
 
@@ -1405,14 +1434,46 @@
 
             yearLayouts.forEach(layout => {
                 const courses = courseData[layout.key];
-                const yearSpacing = courses.length > 0 ? (containerWidth - horizontalPadding * 2) / courses.length : 0;
+                if (!courses || courses.length === 0) return;
+
+                const availableWidth = containerWidth - horizontalPadding * 2;
+                const totalNodesWidth = nodeWidth * courses.length;
+
+                // If only one course, center it
+                if (courses.length === 1) {
+                    nodePositions[courses[0].id] = {
+                        x: (containerWidth - nodeWidth) / 2,
+                        y: layout.yPos + verticalOffset
+                    };
+                    return;
+                }
+
+                // Compute gap but clamp it so nodes don't spread to edges
+                const rawGap = (availableWidth - totalNodesWidth) / (courses.length - 1);
+                const maxGap = Math.min(160, Math.max(40, availableWidth * 0.18));
+                const gap = Math.max(20, Math.min(rawGap, maxGap));
+
+                const totalWidth = totalNodesWidth + gap * (courses.length - 1);
+                const startX = (containerWidth - totalWidth) / 2;
+
                 courses.forEach((course, index) => {
                     nodePositions[course.id] = {
-                        x: horizontalPadding + (yearSpacing * index) + (yearSpacing - nodeWidth) / 2,
+                        x: startX + (index * (nodeWidth + gap)),
                         y: layout.yPos + verticalOffset
                     };
                 });
             });
+
+            let maxY = 0;
+            Object.values(nodePositions).forEach(pos => {
+                if (pos.y > maxY) maxY = pos.y;
+            });
+
+            const thesisExtraSpacing = 160; // extra vertical separation to visually detach thesis
+            nodePositions.thesis = {
+                x: (containerWidth - thesisWidth) / 2,
+                y: maxY + nodeHeight + thesisExtraSpacing
+            };
             return nodePositions;
         }
 
@@ -1434,11 +1495,42 @@
                 node.innerHTML = `
                     <span class="course-icon">${course.icon}</span>
                     <div class="course-name">${course.name}</div>
-                    <div class="course-credits">${course.credits} CFU</div>
+                    <div class="course-credits">${course.credits} ECTS</div>
                     <div class="course-status">${getStatusText(course.status)}</div>
                 `;
                 container.appendChild(node);
             });
+        }
+
+        function createThesisNode() {
+            const container = document.querySelector('.course-tree-container');
+            if (!container) return;
+
+            const existing = document.getElementById('thesis-node');
+            if (existing) existing.remove();
+
+            const positions = calculateNodePositions();
+            const thesisPos = positions.thesis;
+            if (!thesisPos) return;
+
+            const thesisNode = document.createElement('a');
+            thesisNode.className = 'thesis-node completed';
+            thesisNode.id = 'thesis-node';
+            thesisNode.href = 'tesi_english.pdf';
+            thesisNode.target = '_blank';
+            thesisNode.rel = 'noopener';
+            thesisNode.style.left = `${thesisPos.x}px`;
+            thesisNode.style.top = `${thesisPos.y}px`;
+            thesisNode.innerHTML = `
+                <span class="course-icon">🎓</span>
+                <div class="course-name">Thesis</div>
+                <div class="course-credits">Final project</div>
+                <div class="course-status">Completed</div>
+            `;
+            container.appendChild(thesisNode);
+
+            const minHeight = thesisPos.y + 200;
+            container.style.minHeight = `${Math.max(1120, minHeight)}px`;
         }
         
         function drawConnections() {
@@ -1449,21 +1541,42 @@
             const positions = calculateNodePositions();
             const nodeWidth = 180; // Assuming desktop for this calculation
             const nodeHeight = 100;
+            const thesisWidth = 280;
+            const thesisHeight = 120;
+
+            const buildIndexConnections = (fromKey, toKey) => {
+                const fromList = courseData[fromKey] || [];
+                const toList = courseData[toKey] || [];
+                if (fromList.length === 0 || toList.length === 0) return [];
+
+                if (fromList.length === 1) {
+                    return [{ from: fromList[0].id, to: toList[0].id }];
+                }
+
+                return fromList.map((fromCourse, index) => {
+                    const targetIndex = Math.round(index * (toList.length - 1) / (fromList.length - 1));
+                    return { from: fromCourse.id, to: toList[targetIndex].id };
+                });
+            };
             
             const connections = [
-                { from: 'prog1', to: 'prog2' }, { from: 'prog1', to: 'algo' }, { from: 'math1', to: 'stats' }, 
-                { from: 'arch1', to: 'os' }, { from: 'arch2', to: 'os' }, { from: 'lfa', to: 'ai' },
-                { from: 'discrete', to: 'algo' }, { from: 'prog2', to: 'sweng' }, { from: 'algo', to: 'net' },
-                { from: 'ai', to: 'biometric' }, { from: 'stats', to: 'info' }, { from: 'db', to: 'vis' },
-                { from: 'ai', to: 'deep' }, { from: 'prog2', to: 'game_dev' }, { from: 'vis', to: 'game_dev' }
+                ...buildIndexConnections('year1', 'year2'),
+                ...buildIndexConnections('year2', 'year3'),
+                { from: 'ai', to: 'deep' },
+                { from: 'vis', to: 'game_dev' },
+                { from: 'sweng', to: 'thesis' }
             ];
 
             connections.forEach(conn => {
                 const from = positions[conn.from], to = positions[conn.to];
                 if (from && to) {
+                    const fromWidth = conn.from === 'thesis' ? thesisWidth : nodeWidth;
+                    const toWidth = conn.to === 'thesis' ? thesisWidth : nodeWidth;
+                    const fromHeight = conn.from === 'thesis' ? thesisHeight : nodeHeight;
+                    const toHeight = conn.to === 'thesis' ? thesisHeight : nodeHeight;
                     const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
                     const midY = (from.y + to.y) / 2;
-                    const d = `M ${from.x + nodeWidth/2} ${from.y + nodeHeight} C ${from.x + nodeWidth/2} ${midY}, ${to.x + nodeWidth/2} ${midY}, ${to.x + nodeWidth/2} ${to.y}`;
+                    const d = `M ${from.x + fromWidth/2} ${from.y + fromHeight} C ${from.x + fromWidth/2} ${midY}, ${to.x + toWidth/2} ${midY}, ${to.x + toWidth/2} ${to.y}`;
                     path.setAttribute('d', d);
                     path.setAttribute('class', 'connection-path');
                     path.setAttribute('id', `path-${conn.from}-${conn.to}`);
@@ -1477,25 +1590,8 @@
                 entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('visible'); });
             }, { threshold: 0.1, rootMargin: '0px 0px -100px 0px' });
 
-            const selectors = ['.course-tree-section', '.course-tree-title', '.year-label', '.course-node', '.connection-path'];
+            const selectors = ['.course-tree-section', '.course-tree-title', '.course-tree-subtitle', '.year-label', '.course-node', '.thesis-node', '.connection-path'];
             selectors.forEach(selector => document.querySelectorAll(selector).forEach(el => observer.observe(el)));
-        }
-        
-        function updateCountdown() {
-            const countdownEl = document.getElementById('graduation-countdown');
-            if (!countdownEl) return;
-            const graduationDate = new Date('2026-04-22T13:00:00');
-            const diff = graduationDate - new Date();
-
-            if (diff > 0) {
-                document.getElementById('days').textContent = Math.floor(diff / (1000*60*60*24)).toString().padStart(2, '0');
-                document.getElementById('hours').textContent = Math.floor((diff / (1000*60*60)) % 24).toString().padStart(2, '0');
-                document.getElementById('minutes').textContent = Math.floor((diff / 1000/60) % 60).toString().padStart(2, '0');
-                document.getElementById('seconds').textContent = Math.floor((diff / 1000) % 60).toString().padStart(2, '0');
-            } else {
-                countdownEl.innerHTML = '<span style="color: #8A2BE2; font-size: 1.2rem;">🎓 Graduated! 🎉</span>';
-                clearInterval(countdownInterval);
-            }
         }
         
         // --- EVENT LISTENERS & HANDLERS ---
@@ -1527,6 +1623,7 @@
             if(treeContainer && getComputedStyle(treeContainer).display !== 'none'){
                 treeContainer.innerHTML = '<svg class="tree-connections" id="tree-svg"></svg>'; // Clear old nodes
                 createCourseNodes();
+                createThesisNode();
                 drawConnections();
                 setTimeout(setupScrollAnimations, 100);
             }
