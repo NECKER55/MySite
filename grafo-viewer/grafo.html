@@ -1,0 +1,97 @@
+<!doctype html>
+<html class="dark" lang="it">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>grafo · knowledge graph</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Geist:wght@300;500&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              'surface-container-lowest': '#0e0e0e',
+              'on-surface-variant': '#cbc3d7',
+              'on-background': '#e2e2e2',
+              'primary-fixed': '#e9ddff',
+              'surface-tint': '#d0bcff',
+              'on-surface': '#e2e2e2',
+              'secondary-container': '#03b5d3',
+              'inverse-primary': '#6d3bd7',
+              'primary-container': '#a078ff',
+              'surface-dim': '#131313',
+              secondary: '#4cd7f6',
+              outline: '#958ea0',
+              'surface-container-high': '#2a2a2a',
+              tertiary: '#ffb869',
+              primary: '#d0bcff',
+              'surface-container': '#1f1f1f',
+              'outline-variant': '#494454',
+              'surface-container-low': '#1b1b1b',
+              'surface-bright': '#393939',
+              'on-primary-container': '#340080',
+              'surface-variant': '#353535',
+              'on-primary': '#3c0091',
+              background: '#131313',
+              'on-secondary-container': '#00424e',
+              surface: '#131313',
+              'surface-container-highest': '#353535',
+              error: '#ffb4ab',
+              'on-secondary': '#003640',
+            },
+            borderRadius: { DEFAULT: '0.125rem', lg: '0.25rem', xl: '0.5rem', full: '0.75rem' },
+            spacing: { base: '8px', xl: '80px', gutter: '24px', lg: '48px', md: '24px', sm: '12px', xs: '4px' },
+            fontFamily: {
+              'data-display': ['Geist'],
+              'headline-lg': ['Inter'],
+              'body-md': ['Inter'],
+              'headline-xl': ['Inter'],
+              'label-sm': ['Geist'],
+            },
+            fontSize: {
+              'data-display': ['24px', { lineHeight: '1', letterSpacing: '-0.01em', fontWeight: '300' }],
+              'headline-lg': ['32px', { lineHeight: '1.2', letterSpacing: '-0.02em', fontWeight: '600' }],
+              'body-md': ['16px', { lineHeight: '1.6', letterSpacing: '0em', fontWeight: '400' }],
+              'headline-xl': ['48px', { lineHeight: '1.1', letterSpacing: '-0.04em', fontWeight: '700' }],
+              'label-sm': ['12px', { lineHeight: '1', letterSpacing: '0.05em', fontWeight: '500' }],
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      body { background-color: #000000; color: #e2e2e2; overflow: hidden; margin: 0; }
+      .nebula-glow {
+        position: absolute;
+        width: 600px;
+        height: 600px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(109, 59, 215, 0.15) 0%, rgba(109, 59, 215, 0) 70%);
+        filter: blur(80px);
+        pointer-events: none;
+        z-index: 0;
+        transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+      }
+      .glass-panel {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 0.5px solid rgba(255, 255, 255, 0.15);
+      }
+      .stellar-border { border: 0.5px solid rgba(255, 255, 255, 0.15); }
+      .glow-line { stroke: #d0bcff; stroke-width: 1.5; filter: drop-shadow(0 0 4px #6d3bd7); opacity: 0.4; }
+      .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+      .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+      .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(208, 188, 255, 0.2); border-radius: 10px; }
+      .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24; }
+    </style>
+    <script type="module" crossorigin src="./assets/index-D_8XYw-H.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-CGMmpTIn.css">
+  </head>
+  <body class="font-body-md text-on-background">
+    <div id="root"></div>
+  </body>
+</html>

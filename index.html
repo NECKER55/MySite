@@ -220,6 +220,88 @@
             text-align: center;
         }
 
+        /* Knowledge Graph (brain) Preview */
+        .knowledge-graph-preview {
+            display: flex;
+            align-items: center;
+            gap: clamp(1rem, 3vw, 2rem);
+            width: 100%;
+            margin-top: 1.5rem;
+            padding: clamp(1rem, 3vw, 1.75rem);
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(138, 43, 226, 0.2);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2), inset 0 0 20px rgba(138, 43, 226, 0.05);
+            text-decoration: none;
+            color: inherit;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            overflow: hidden;
+        }
+
+        .knowledge-graph-preview:hover {
+            transform: translateY(-6px);
+            background: rgba(138, 43, 226, 0.05);
+            border-color: rgba(138, 43, 226, 0.4);
+            box-shadow: 0 15px 40px rgba(138, 43, 226, 0.3), inset 0 0 30px rgba(138, 43, 226, 0.1);
+        }
+
+        .brain-canvas-container {
+            flex: 0 0 auto;
+            width: clamp(120px, 22vw, 180px);
+            height: clamp(120px, 22vw, 180px);
+            border-radius: 16px;
+            background: radial-gradient(circle at center, rgba(138, 43, 226, 0.12), transparent 70%);
+        }
+
+        .brain-canvas-container canvas { display: block; }
+
+        .knowledge-graph-text { flex: 1 1 auto; }
+
+        .knowledge-graph-badge {
+            display: inline-block;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: #d0bcff;
+            background: rgba(138, 43, 226, 0.15);
+            border: 1px solid rgba(138, 43, 226, 0.3);
+            padding: 0.2rem 0.6rem;
+            border-radius: 999px;
+            margin-bottom: 0.6rem;
+        }
+
+        .knowledge-graph-text h3 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: #8A2BE2;
+            text-shadow: 0 0 20px rgba(138, 43, 226, 0.8);
+        }
+
+        .knowledge-graph-text p {
+            color: #ddd;
+            line-height: 1.5;
+            font-size: 0.95rem;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+            margin-bottom: 0.7rem;
+        }
+
+        .knowledge-graph-cta {
+            display: inline-block;
+            color: #d0bcff;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: transform 0.3s ease;
+        }
+
+        .knowledge-graph-preview:hover .knowledge-graph-cta { transform: translateX(6px); }
+
+        @media (max-width: 600px) {
+            .knowledge-graph-preview { flex-direction: column; text-align: center; }
+            .knowledge-graph-text { text-align: center; }
+        }
+
         /* Hardware Preview Section */
         .hardware-preview-section {
             margin-top: 3rem;
@@ -1028,6 +1110,17 @@
 
             <section class="section" id="projects">
                 <h2 class="section-title">My Projects</h2>
+
+                <a href="grafo-viewer/grafo.html" class="knowledge-graph-preview">
+                    <div class="brain-canvas-container" id="brain-canvas-container"></div>
+                    <div class="knowledge-graph-text">
+                        <span class="knowledge-graph-badge">Interactive</span>
+                        <h3>My Knowledge Graph</h3>
+                        <p>3D map of my self-taught knowledge beyond university - an interactive visualization.</p>
+                        <span class="knowledge-graph-cta">Enter the graph →</span>
+                    </div>
+                </a>
+
                 <div class="project-grid">
                     <a href="robotic_projects.html" class="project-button mobile-only">
                         <span class="icon">🤖</span>
@@ -1263,6 +1356,7 @@
             setupCameraPosition();
             setupLights();
             loadGLBModel();
+            initBrainScene();
             setupEventListeners();
             
             // Delay to ensure DOM is ready for calculations
@@ -1342,6 +1436,58 @@
                     errorElement.innerHTML = `Error loading 3D model.<br>Please check file path.`;
                 }
             );
+        }
+
+        // --- KNOWLEDGE GRAPH BRAIN PREVIEW (independent scene) ---
+        function initBrainScene() {
+            const container = document.getElementById('brain-canvas-container');
+            if (!container) return;
+
+            const bScene = new THREE.Scene();
+            const bCamera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
+            bCamera.position.set(0, 0, 4);
+
+            const bRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            bRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            container.appendChild(bRenderer.domElement);
+
+            bScene.add(new THREE.AmbientLight(0xffffff, 1.2));
+            const bl1 = new THREE.DirectionalLight(0x8A2BE2, 3);
+            bl1.position.set(5, 3, 5);
+            bScene.add(bl1);
+            const bl2 = new THREE.DirectionalLight(0x00d4ff, 2);
+            bl2.position.set(-5, -2, 3);
+            bScene.add(bl2);
+
+            let brain = null;
+            const bLoader = new THREE.GLTFLoader();
+            bLoader.load('brain_hologram.glb', (gltf) => {
+                brain = gltf.scene;
+                const box = new THREE.Box3().setFromObject(brain);
+                const center = box.getCenter(new THREE.Vector3());
+                const size = box.getSize(new THREE.Vector3());
+                const maxDim = Math.max(size.x, size.y, size.z) || 1;
+                const scale = 3.1 / maxDim;
+                brain.scale.setScalar(scale);
+                brain.position.set(-center.x * scale, -center.y * scale, -center.z * scale);
+                bScene.add(brain);
+            }, undefined, (err) => console.error('Error loading brain model:', err));
+
+            function resizeBrain() {
+                const w = container.clientWidth || 1;
+                const h = container.clientHeight || 1;
+                bRenderer.setSize(w, h);
+                bCamera.aspect = w / h;
+                bCamera.updateProjectionMatrix();
+            }
+            resizeBrain();
+            window.addEventListener('resize', resizeBrain);
+
+            (function animateBrain() {
+                requestAnimationFrame(animateBrain);
+                if (brain) brain.rotation.y += 0.006;
+                bRenderer.render(bScene, bCamera);
+            })();
         }
 
         function initMatrixRain() {
