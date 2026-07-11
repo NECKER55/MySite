@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Andrea Veneroni - 3D Portfolio</title>
     <style>
         /* 1. General Reset & Body */
@@ -973,7 +973,22 @@
         }
 
         .mobile-nav-button:hover { background: rgba(138, 43, 226, 0.3); transform: scale(1.1); }
-        .mobile-nav-button span { display: block; width: 25px; height: 3px; background: #8A2BE2; margin: 5px 0; transition: all 0.3s ease; }
+        .mobile-nav-button span { display: block; width: 25px; height: 3px; background: #8A2BE2; margin: 5px 0; transition: all 0.3s ease; border-radius: 2px; }
+        .mobile-nav-button.active span:nth-child(1) { transform: translateY(8px) rotate(45deg); }
+        .mobile-nav-button.active span:nth-child(2) { opacity: 0; transform: scaleX(0.2); }
+        .mobile-nav-button.active span:nth-child(3) { transform: translateY(-8px) rotate(-45deg); }
+
+        .menu-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.65);
+            backdrop-filter: blur(3px);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            z-index: 998;
+        }
+        .menu-backdrop.active { opacity: 1; pointer-events: auto; }
 
         .mobile-menu {
             display: none; position: fixed; top: 0; right: -100%; width: 80%; max-width: 350px; height: 100vh;
@@ -1064,6 +1079,127 @@
             .content-section { background: none; padding: 20px; }
             .project-button, .timeline-item, .skill-item { border-color: #333; box-shadow: none; }
         }
+
+        /* ===================================================================
+           13. MOBILE REDESIGN (overrides — kept last so it wins by source order)
+           =================================================================== */
+
+        @media (max-width: 1024px) {
+            :root { --hero-h: 44vh; }
+
+            /* Hero band reserved for the centered 3D robot */
+            .model-space { width: 100%; height: var(--hero-h); position: fixed; top: 0; left: 0; z-index: 1; }
+            #canvas-container { height: var(--hero-h); }
+            .main-container { flex-direction: column; padding-top: var(--hero-h); }
+
+            /* Content sits on a solid backdrop so the fixed robot never bleeds
+               through the scrolling content. */
+            .content-section {
+                padding: 2.25rem 1.5rem 3rem;
+                background: linear-gradient(to bottom, rgba(0,0,0,0.6) 0%, #000 12%);
+                position: relative;
+                z-index: 3;
+            }
+
+            /* --- Hero title (right under the robot) --- */
+            .header {
+                margin-bottom: 3rem;
+                text-align: center;
+                opacity: 0;
+                animation: fadeInUp 1s ease 0.15s forwards;
+            }
+            .header h1 {
+                font-size: clamp(2.1rem, 8.5vw, 3rem);
+                margin-bottom: 0.6rem;
+            }
+            .subtitle { font-size: 1.05rem; }
+
+            /* --- Scroll-reveal for sections (wow, faithful to desktop) --- */
+            .section {
+                animation: none;
+                opacity: 0;
+                transform: translateY(30px);
+                transition: opacity 0.7s ease, transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+                will-change: opacity, transform;
+            }
+            .section.in-view { opacity: 1; transform: none; }
+
+            .section-title { font-size: clamp(1.7rem, 6vw, 2rem); }
+
+            /* --- Reposition the robot hint inside the hero band --- */
+            .model-hover-indicator {
+                left: 50%;
+                bottom: auto;
+                top: calc(var(--hero-h) - 62px);
+                padding: 0.55rem 1.1rem;
+                z-index: 4;
+            }
+            .indicator-text { font-size: 0.9rem; }
+
+            #loading, #error { top: calc(var(--hero-h) / 2); left: 50%; }
+
+            /* --- Richer mobile menu --- */
+            .mobile-menu-brand {
+                margin-bottom: 1.5rem;
+                padding-bottom: 1.1rem;
+                border-bottom: 1px solid rgba(138, 43, 226, 0.25);
+            }
+            .mobile-menu-brand-name {
+                display: block;
+                font-size: 1.3rem;
+                font-weight: 700;
+                color: #fff;
+                text-shadow: 0 0 15px rgba(138, 43, 226, 0.6);
+            }
+            .mobile-menu-brand-role {
+                display: block;
+                font-size: 0.85rem;
+                color: #aaa;
+                margin-top: 0.2rem;
+            }
+            .mobile-menu-item {
+                display: flex;
+                align-items: center;
+                font-size: 1.05rem;
+            }
+            .mobile-menu-ico { margin-right: 0.7rem; font-size: 1.15rem; }
+            .mobile-menu-socials {
+                display: flex;
+                gap: 0.8rem;
+                margin-top: 1.6rem;
+                padding-top: 1.2rem;
+                border-top: 1px solid rgba(138, 43, 226, 0.25);
+            }
+            .mobile-menu-social {
+                width: 46px;
+                height: 46px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 1.25rem;
+                background: rgba(138, 43, 226, 0.12);
+                border: 1px solid rgba(138, 43, 226, 0.3);
+                border-radius: 12px;
+                text-decoration: none;
+                transition: transform 0.25s ease, background 0.25s ease;
+            }
+            .mobile-menu-social:hover,
+            .mobile-menu-social:active {
+                background: rgba(138, 43, 226, 0.28);
+                transform: translateY(-2px);
+            }
+        }
+
+        /* Phones: keep the hero band (do NOT collapse padding-top to 0) */
+        @media (max-width: 768px) {
+            .main-container { padding-top: var(--hero-h); }
+            .content-section { padding: 2rem 1.25rem 3rem; }
+        }
+
+        /* Reduced motion: never leave revealed sections stuck hidden */
+        @media (prefers-reduced-motion: reduce) {
+            .section { opacity: 1 !important; transform: none !important; }
+        }
     </style>
 </head>
 <body>
@@ -1092,12 +1228,22 @@
         <span></span>
         <span></span>
     </div>
+    <div class="menu-backdrop" id="menu-backdrop"></div>
     <nav class="mobile-menu" id="mobile-menu">
-        <a href="#projects" class="mobile-menu-item">My Projects</a>
-        <a href="#university" class="mobile-menu-item">University Path</a>
-        <a href="#skills" class="mobile-menu-item">Skills</a>
-        <a href="#contact" class="mobile-menu-item">Contact</a>
-        <a href="#academic" class="mobile-menu-item">Academic Journey</a>
+        <div class="mobile-menu-brand">
+            <span class="mobile-menu-brand-name">Andrea Veneroni</span>
+            <span class="mobile-menu-brand-role">Student · Robotics & AI</span>
+        </div>
+        <a href="#projects" class="mobile-menu-item"><span class="mobile-menu-ico">🚀</span> My Projects</a>
+        <a href="#university" class="mobile-menu-item"><span class="mobile-menu-ico">🎓</span> University Path</a>
+        <a href="#skills" class="mobile-menu-item"><span class="mobile-menu-ico">🛠️</span> Skills</a>
+        <a href="#contact" class="mobile-menu-item"><span class="mobile-menu-ico">✉️</span> Contact</a>
+        <a href="#academic" class="mobile-menu-item"><span class="mobile-menu-ico">🌳</span> Academic Journey</a>
+        <div class="mobile-menu-socials">
+            <a href="https://github.com/NECKER55" class="mobile-menu-social" aria-label="GitHub">🐙</a>
+            <a href="https://www.instagram.com/andreaveneronii" class="mobile-menu-social" aria-label="Instagram">📱</a>
+            <a href="mailto:aven00004@gmail.com" class="mobile-menu-social" aria-label="Email">📧</a>
+        </div>
     </nav>
 
     <div class="main-container">
@@ -1296,6 +1442,7 @@
         const matrixCtx = matrixCanvas.getContext('2d');
         const mobileNavButton = document.getElementById('mobile-nav-button');
         const mobileMenu = document.getElementById('mobile-menu');
+        const menuBackdrop = document.getElementById('menu-backdrop');
 
         const FONT_SIZE = 16;
         const CHARACTERS = '01';
@@ -1342,7 +1489,7 @@
 
             const aspect = window.innerWidth / window.innerHeight;
             camera = new THREE.PerspectiveCamera(50, aspect, 0.1, 1000);
-            
+
             renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
             renderer.setSize(window.innerWidth, window.innerHeight);
             renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -1366,6 +1513,7 @@
                 createThesisNode();
                 drawConnections();
                 setupScrollAnimations();
+                setupMobileReveal();
             }, 100);
         }
 
@@ -1380,8 +1528,10 @@
         // --- 3D SCENE & MATRIX EFFECT ---
         function setupCameraPosition() {
              if (window.innerWidth <= 1024) { // Changed to 1024 to match CSS breakpoint
-                camera.position.set(-5, 2, 15);
-                camera.lookAt(-2, -1, 0);
+                // Mobile: robot centrato orizzontalmente e inquadrato sulla parte
+                // superiore (busto), come da layout originale.
+                camera.position.set(0, 2.2, 14);
+                camera.lookAt(0, 1.4, 0);
             } else {
                 camera.position.set(-8, 2, 12);
                 camera.lookAt(-3, -2, 0);
@@ -1403,10 +1553,30 @@
 
         function loadGLBModel() {
             const loader = new THREE.GLTFLoader();
-            loader.load('robot_static.glb',
+            loader.load('robot_animated.glb',
                 (gltf) => {
                     model = gltf.scene;
-                    const box = new THREE.Box3().setFromObject(model);
+
+                    // Il modello animato è skinnato. Due accortezze rispetto a un GLB statico:
+                    // 1) Le mesh skinnate hanno un bounding box in bind-pose fuorviante (qui una
+                    //    "Cube" finisce a y≈40) che, incluso nel box, scalerebbe il robot ~7×
+                    //    troppo piccolo. Inquadriamo quindi SOLO le mesh non skinnate — il corpo
+                    //    del robot, con le stesse dimensioni della versione statica.
+                    // 2) Il frustum culling delle mesh skinnate si basa su quello stesso box in
+                    //    bind-pose (lontano dalla camera): senza disattivarlo, la parte animata
+                    //    sparirebbe. Lo spegniamo così resta sempre visibile.
+                    model.updateMatrixWorld(true);
+                    const box = new THREE.Box3();
+                    const meshBox = new THREE.Box3();
+                    model.traverse((o) => {
+                        if (o.isSkinnedMesh) { o.frustumCulled = false; return; }
+                        if (o.isMesh && o.geometry) {
+                            if (!o.geometry.boundingBox) o.geometry.computeBoundingBox();
+                            meshBox.copy(o.geometry.boundingBox).applyMatrix4(o.matrixWorld);
+                            box.union(meshBox);
+                        }
+                    });
+                    if (box.isEmpty()) box.setFromObject(model); // fallback: modello tutto skinnato
                     const center = box.getCenter(new THREE.Vector3());
                     const size = box.getSize(new THREE.Vector3());
                     const maxDim = Math.max(size.x, size.y, size.z);
@@ -1415,7 +1585,9 @@
                     model.scale.setScalar(scale);
 
                     if (window.innerWidth <= 1024) { // Changed to 1024
-                        model.position.set(-center.x * scale, -center.y * scale - 5, -center.z * scale - 5);
+                        // Centrato su X (=0); leggero shift in basso così la testa
+                        // non tocca il bordo alto della banda.
+                        model.position.set(-center.x * scale, -center.y * scale - 3, -center.z * scale - 5);
                     } else {
                         model.position.set(-center.x * scale - 9, -center.y * scale - 9, -center.z * scale - 10);
                     }
@@ -1491,8 +1663,10 @@
         }
 
         function initMatrixRain() {
-            matrixCanvas.width = window.innerWidth;
-            matrixCanvas.height = window.innerHeight;
+            // Il box CSS del canvas è alto --hero-h su mobile e 100vh su desktop:
+            // dimensionare il buffer dal box evita il disegno distorto.
+            matrixCanvas.width = matrixCanvas.clientWidth;
+            matrixCanvas.height = matrixCanvas.clientHeight;
             columns = Math.floor(matrixCanvas.width / FONT_SIZE);
             matrixDrops = [];
             for (let i = 0; i < columns; i++) {
@@ -1748,18 +1922,56 @@
             container.addEventListener('mousemove', onMouseMove);
             container.addEventListener('click', onMouseClick);
             container.addEventListener('touchstart', onTouchStart, { passive: false });
-            mobileNavButton.addEventListener('click', () => { mobileMenu.classList.toggle('active'); mobileNavButton.classList.toggle('active'); });
+            mobileNavButton.addEventListener('click', () => {
+                mobileMenu.classList.contains('active') ? closeMenu() : openMenu();
+            });
+            if (menuBackdrop) menuBackdrop.addEventListener('click', closeMenu);
             document.querySelectorAll('a[href^="#"]').forEach(anchor => {
                 anchor.addEventListener('click', function (e) {
                     e.preventDefault();
                     document.querySelector(this.getAttribute('href'))?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    mobileMenu.classList.remove('active');
-                    mobileNavButton.classList.remove('active');
+                    closeMenu();
                 });
             });
         }
+
+        function openMenu() {
+            mobileMenu.classList.add('active');
+            mobileNavButton.classList.add('active');
+            if (menuBackdrop) menuBackdrop.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeMenu() {
+            mobileMenu.classList.remove('active');
+            mobileNavButton.classList.remove('active');
+            if (menuBackdrop) menuBackdrop.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // Reveal-on-scroll for the content sections (mobile wow effect)
+        function setupMobileReveal() {
+            if (window.innerWidth > 1024) return;
+            const sections = document.querySelectorAll('.content-section .section');
+            const obs = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('in-view');
+                        obs.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.12, rootMargin: '0px 0px -60px 0px' });
+            sections.forEach(el => obs.observe(el));
+        }
         
+        let lastViewportWidth = window.innerWidth;
+        const isTouchDevice = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
         function onWindowResize() {
+            // Su mobile lo scroll fa apparire/scomparire la barra degli indirizzi,
+            // cambiando solo l'altezza della finestra: ignora questi resize per
+            // evitare che il modello 3D "scatti" durante lo scorrimento.
+            if (isTouchDevice && window.innerWidth === lastViewportWidth) return;
+            lastViewportWidth = window.innerWidth;
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
@@ -1845,9 +2057,7 @@
 
         // --- SCRIPT EXECUTION ---
         init();
-        updateCountdown();
-        countdownInterval = setInterval(updateCountdown, 1000);
-        
+
         console.log('%c Welcome to Andrea Veneroni\'s Portfolio! 🚀', 'color: #8A2BE2; font-size: 20px; font-weight: bold;');
         console.log('%c Built with Three.js, love, and lots of coffee ☕', 'color: #666; font-size: 14px;');
     </script>
