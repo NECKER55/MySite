@@ -2062,5 +2062,11 @@
         console.log('%c Welcome to Andrea Veneroni\'s Portfolio! 🚀', 'color: #8A2BE2; font-size: 20px; font-weight: bold;');
         console.log('%c Built with Three.js, love, and lots of coffee ☕', 'color: #666; font-size: 14px;');
     </script>
+    <script>
+        // Replay the knowledge graph guided tour on every entry from the site
+        document.querySelector('.knowledge-graph-preview').addEventListener('click', function () {
+            try { sessionStorage.removeItem('grafo.tour.seen'); } catch (e) {}
+        });
+    </script>
 </body>
 </html>
