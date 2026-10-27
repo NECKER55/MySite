@@ -302,207 +302,243 @@
             .knowledge-graph-text { text-align: center; }
         }
 
-        /* Hardware Preview Section */
-        .hardware-preview-section {
+        /* Portfolio Section */
+        .portfolio-section {
             margin-top: 3rem;
             width: 100%;
-        }
-
-        .hardware-preview-link {
-            display: block;
             background: rgba(255, 255, 255, 0.02);
             backdrop-filter: blur(12px);
             border: 2px solid rgba(138, 43, 226, 0.3);
             border-radius: 20px;
             padding: 2.5rem;
-            transition: all 0.4s ease;
-            text-decoration: none;
-            color: inherit;
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3), inset 0 0 30px rgba(138, 43, 226, 0.05);
         }
 
-        .hardware-preview-link:hover {
-            transform: translateY(-5px);
-            border-color: rgba(138, 43, 226, 0.6);
-            background: rgba(138, 43, 226, 0.05);
-            box-shadow: 0 20px 60px rgba(138, 43, 226, 0.3), inset 0 0 40px rgba(138, 43, 226, 0.1);
-        }
-
-        .hardware-preview-header {
+        .portfolio-header {
             text-align: center;
             margin-bottom: 2rem;
         }
 
-        .hardware-preview-header h3 {
+        .portfolio-header h3 {
             font-size: 2rem;
             color: #8A2BE2;
             margin-bottom: 0.5rem;
             text-shadow: 0 0 30px rgba(138, 43, 226, 1);
         }
 
-        .hardware-subtitle {
+        .portfolio-subtitle {
             color: #bbb;
             font-size: 1.1rem;
             text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
         }
 
-        .hardware-preview-content {
-            display: flex;
-            flex-direction: column;
-            gap: 2rem;
-        }
-
-        .preview-stats {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 1.5rem;
-        }
-
-        .stat-item {
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid rgba(138, 43, 226, 0.2);
-            border-radius: 12px;
-            padding: 1.5rem;
-            text-align: center;
-            transition: all 0.3s ease;
-        }
-
-        .stat-item:hover {
-            background: rgba(138, 43, 226, 0.08);
-            border-color: rgba(138, 43, 226, 0.4);
-            transform: translateY(-3px);
-        }
-
-        .stat-value {
-            font-size: 2.5rem;
-            font-weight: bold;
-            color: #8A2BE2;
-            text-shadow: 0 0 20px rgba(138, 43, 226, 0.8);
-            margin-bottom: 0.3rem;
-        }
-
-        .stat-label {
-            color: #ddd;
-            font-size: 0.95rem;
-            margin-bottom: 0.5rem;
-            font-weight: 600;
-        }
-
-        .stat-detail {
-            color: #888;
-            font-size: 0.85rem;
-        }
-
-        .preview-features {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 1rem;
-        }
-
-        .feature-tag {
-            padding: 0.75rem 1.25rem;
-            background: rgba(138, 43, 226, 0.1);
-            border: 1px solid rgba(138, 43, 226, 0.3);
-            border-radius: 10px;
-            color: #8A2BE2;
-            font-size: 0.95rem;
-            text-align: center;
-            text-shadow: 0 0 10px rgba(138, 43, 226, 0.6);
-            transition: all 0.3s ease;
-        }
-
-        .feature-tag:hover {
-            background: rgba(138, 43, 226, 0.2);
-            border-color: rgba(138, 43, 226, 0.5);
-        }
-
-        .preview-mockup {
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(138, 43, 226, 0.2);
-            border-radius: 12px;
-            padding: 2rem;
-            position: relative;
-        }
-
-        .mockup-chart {
-            display: flex;
-            align-items: flex-end;
-            justify-content: space-around;
-            height: 150px;
-            gap: 1rem;
-            margin-bottom: 1rem;
-        }
-
-        .chart-bar {
-            flex: 1;
-            border-radius: 8px 8px 0 0;
-            transition: all 0.3s ease;
-            box-shadow: 0 0 15px rgba(138, 43, 226, 0.3);
-        }
-
-        .hardware-preview-link:hover .chart-bar {
-            transform: scaleY(1.05);
-        }
-
-        .mockup-labels {
-            display: flex;
-            justify-content: space-around;
-            gap: 1rem;
-        }
-
-        .mockup-labels span {
-            flex: 1;
-            text-align: center;
-            color: #8A2BE2;
-            font-size: 0.85rem;
-            font-weight: 600;
-        }
-
-        .hardware-preview-cta {
+        .portfolio-body {
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 1rem;
-            margin-top: 2rem;
-            padding-top: 2rem;
-            border-top: 1px solid rgba(138, 43, 226, 0.2);
+            gap: 3rem;
+            flex-wrap: wrap;
         }
 
-        .cta-text {
+        .portfolio-chart {
+            position: relative;
+            width: 360px;
+            height: 320px;
+            flex-shrink: 0;
+        }
+
+        .portfolio-chart canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            touch-action: pan-y;
+        }
+
+        .portfolio-center {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            pointer-events: none;
+        }
+
+        .portfolio-center-value {
+            font-size: 1.6rem;
+            font-weight: bold;
+            color: #fff;
+            text-shadow: 0 0 20px rgba(138, 43, 226, 0.8);
+        }
+
+        .portfolio-center-label {
+            color: #bbb;
+            font-size: 0.9rem;
+            max-width: 140px;
+        }
+
+        .portfolio-legend {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+            min-width: 220px;
+        }
+
+        .portfolio-legend li {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.5rem 0.9rem;
+            border: 1px solid rgba(138, 43, 226, 0.2);
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.02);
+            cursor: pointer;
+            transition: background 0.2s ease, border-color 0.2s ease;
+        }
+
+        .portfolio-legend li.active {
+            background: rgba(138, 43, 226, 0.12);
+            border-color: rgba(138, 43, 226, 0.5);
+        }
+
+        .portfolio-legend li:focus-visible {
+            outline: 2px solid rgba(138, 43, 226, 0.7);
+            outline-offset: 2px;
+        }
+
+        .legend-swatch {
+            width: 12px;
+            height: 12px;
+            border-radius: 3px;
+            flex-shrink: 0;
+        }
+
+        .legend-name {
+            flex: 1;
+            color: #ddd;
+            font-weight: 600;
+        }
+
+        .legend-pct {
+            color: #bbb;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .portfolio-status {
+            color: #888;
+            text-align: center;
+            font-size: 0.95rem;
+        }
+
+        .portfolio-updated {
+            margin-top: 1.5rem;
+            text-align: center;
+            color: #777;
+            font-size: 0.85rem;
+        }
+
+        .portfolio-total {
+            text-align: center;
+            margin: 2rem 0 0.5rem;
+        }
+
+        .portfolio-total-label {
+            color: #bbb;
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .portfolio-total-value {
+            font-size: 2.6rem;
+            font-weight: bold;
+            color: #fff;
+            text-shadow: 0 0 25px rgba(138, 43, 226, 0.9);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .portfolio-message {
+            text-align: center;
+            margin-top: 1rem;
+            padding: 0.75rem 1rem;
+            border-radius: 10px;
+            font-size: 0.95rem;
+        }
+
+        .portfolio-message.loading { color: #bbb; }
+
+        .portfolio-message.error {
+            color: #ff8a9a;
+            background: rgba(220, 53, 69, 0.1);
+            border: 1px solid rgba(220, 53, 69, 0.4);
+        }
+
+        .portfolio-block {
+            margin-top: 2rem;
+        }
+
+        .portfolio-block h4 {
             color: #8A2BE2;
             font-size: 1.2rem;
+            margin-bottom: 0.75rem;
+            text-shadow: 0 0 15px rgba(138, 43, 226, 0.6);
+        }
+
+        .portfolio-table-wrap {
+            overflow-x: auto;
+            border: 1px solid rgba(138, 43, 226, 0.2);
+            border-radius: 12px;
+            background: rgba(0, 0, 0, 0.25);
+            scrollbar-color: rgba(138, 43, 226, 0.5) transparent;
+        }
+
+        .portfolio-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95rem;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .portfolio-table th,
+        .portfolio-table td {
+            padding: 0.7rem 1rem;
+            text-align: right;
+            white-space: nowrap;
+        }
+
+        .portfolio-table th:first-child,
+        .portfolio-table td:first-child {
+            text-align: left;
+        }
+
+        .portfolio-table th {
+            color: #bbb;
             font-weight: 600;
-            text-shadow: 0 0 15px rgba(138, 43, 226, 0.8);
+            font-size: 0.85rem;
+            border-bottom: 1px solid rgba(138, 43, 226, 0.3);
         }
 
-        .cta-arrow {
-            font-size: 1.5rem;
-            color: #8A2BE2;
-            transition: transform 0.3s ease;
+        .portfolio-table td {
+            color: #ddd;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         }
 
-        .hardware-preview-link:hover .cta-arrow {
-            transform: translateX(10px);
-        }
+        .portfolio-table tr:last-child td { border-bottom: none; }
+        .portfolio-table td.symbol { color: #fff; font-weight: 600; }
+        .portfolio-table .gain-pos { color: #2ECC71; }
+        .portfolio-table .gain-neg { color: #FF5C6C; }
+        .portfolio-table .gain-pct { display: block; font-size: 0.8rem; }
 
-        /* Responsive adjustments for hardware preview */
         @media (max-width: 768px) {
-            .preview-stats {
-                grid-template-columns: 1fr;
-            }
-            
-            .preview-features {
-                grid-template-columns: 1fr;
-            }
-            
-            .hardware-preview-header h3 {
-                font-size: 1.5rem;
-            }
-            
-            .stat-value {
-                font-size: 2rem;
-            }
-            
+            .portfolio-section { padding: 1.5rem; }
+            .portfolio-total-value { font-size: 2rem; }
+            .portfolio-table th, .portfolio-table td { padding: 0.6rem 0.75rem; }
+            .portfolio-header h3 { font-size: 1.5rem; }
+            .portfolio-chart { width: 300px; height: 270px; }
+            .portfolio-legend { min-width: 0; width: 100%; }
+
             /* Hide model indicator on mobile */
             .model-hover-indicator {
                 display: none;
@@ -1290,61 +1326,50 @@
                     </a>
                 </div>
 
-                <!-- Hardware Tracker Preview Section -->
-                <div class="hardware-preview-section">
-                    <a href="hardware.html" class="hardware-preview-link">
-                        <div class="hardware-preview-header">
-                            <h3>🤖 AI Hardware Price Predictor</h3>
-                            <p class="hardware-subtitle">Daily AI-powered predictions for PC component pricing</p>
-                        </div>
-                        
-                        <div class="hardware-preview-content">
-                            <div class="preview-stats">
-                                <div class="stat-item">
-                                    <div class="stat-value">4</div>
-                                    <div class="stat-label">Categories</div>
-                                    <div class="stat-detail">GPUs • CPUs • RAM • SSDs</div>
-                                </div>
-                                <div class="stat-item">
-                                    <div class="stat-value">46</div>
-                                    <div class="stat-label">Models Tracked</div>
-                                    <div class="stat-detail">NVIDIA • AMD • Intel</div>
-                                </div>
-                                <div class="stat-item">
-                                    <div class="stat-value">24h</div>
-                                    <div class="stat-label">Update Frequency</div>
-                                    <div class="stat-detail">Real-time predictions</div>
-                                </div>
-                            </div>
-                            
-                            <div class="preview-features">
-                                <div class="feature-tag">📈 Price Trend Analysis</div>
-                                <div class="feature-tag">🔮 30-Day Forecasting</div>
-                                <div class="feature-tag">📰 Tech News Aggregation</div>
-                                <div class="feature-tag">🎯 ML-Based Predictions</div>
-                            </div>
-                            
-                            <div class="preview-mockup">
-                                <div class="mockup-chart">
-                                    <div class="chart-bar" style="height: 60%; background: linear-gradient(180deg, rgba(40, 167, 69, 0.6), rgba(40, 167, 69, 0.3));"></div>
-                                    <div class="chart-bar" style="height: 35%; background: linear-gradient(180deg, rgba(255, 193, 7, 0.6), rgba(255, 193, 7, 0.3));"></div>
-                                    <div class="chart-bar" style="height: 45%; background: linear-gradient(180deg, rgba(40, 167, 69, 0.6), rgba(40, 167, 69, 0.3));"></div>
-                                    <div class="chart-bar" style="height: 75%; background: linear-gradient(180deg, rgba(220, 53, 69, 0.6), rgba(220, 53, 69, 0.3));"></div>
-                                </div>
-                                <div class="mockup-labels">
-                                    <span>GPUs</span>
-                                    <span>CPUs</span>
-                                    <span>RAM</span>
-                                    <span>SSDs</span>
-                                </div>
+                <!-- Financial Portfolio Section -->
+                <div class="portfolio-section" id="portfolio">
+                    <div class="portfolio-header">
+                        <h3>📊 My Investment Portfolio</h3>
+                        <p class="portfolio-subtitle">Live asset allocation, updated from market prices</p>
+                    </div>
+                    <div class="portfolio-body">
+                        <div class="portfolio-chart" id="portfolio-chart">
+                            <div class="portfolio-center">
+                                <div class="portfolio-center-value" id="portfolio-center-value">…</div>
+                                <div class="portfolio-center-label" id="portfolio-center-label">Loading</div>
                             </div>
                         </div>
-                        
-                        <div class="hardware-preview-cta">
-                            <span class="cta-text">View Live Predictions</span>
-                            <span class="cta-arrow">→</span>
+                        <ul class="portfolio-legend" id="portfolio-legend"></ul>
+                    </div>
+
+                    <div class="portfolio-total" id="portfolio-total" hidden>
+                        <div class="portfolio-total-label">Total value</div>
+                        <div class="portfolio-total-value" id="portfolio-total-value"></div>
+                    </div>
+
+                    <p class="portfolio-message loading" id="portfolio-message">Loading portfolio…</p>
+
+                    <div class="portfolio-block" id="portfolio-positions" hidden>
+                        <h4>Holdings</h4>
+                        <div class="portfolio-table-wrap">
+                            <table class="portfolio-table">
+                                <thead><tr id="portfolio-positions-head"></tr></thead>
+                                <tbody id="portfolio-positions-body"></tbody>
+                            </table>
                         </div>
-                    </a>
+                    </div>
+
+                    <div class="portfolio-block" id="portfolio-cash" hidden>
+                        <h4>Deposit account</h4>
+                        <div class="portfolio-table-wrap">
+                            <table class="portfolio-table">
+                                <thead><tr><th>Account</th><th>Balance</th><th>Annual rate</th></tr></thead>
+                                <tbody id="portfolio-cash-body"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <p class="portfolio-updated" id="portfolio-updated"></p>
                 </div>
             </section>
 
@@ -1423,6 +1448,466 @@
         </div>
     </section>
 
+    <script>
+        // Portfolio: data from the stock-portfolio Worker, proxied by a Netlify Function (keeps the token server-side)
+        (function () {
+            const PORTFOLIO_API = '/.netlify/functions/portfolio';
+            // Locally (file:// or localhost) call the Worker directly with the gitignored portfolio.local.js config,
+            // so no Netlify dev server is needed. Online the token stays in the Netlify Function.
+            const IS_LOCAL = location.protocol === 'file:' || ['localhost', '127.0.0.1'].includes(location.hostname);
+            const REFRESH_MS = 60000;
+            const COLORS = ['#8A2BE2', '#00C2FF', '#2ECC71', '#FFB020', '#FF5C8A', '#5B6CFF', '#1ABC9C', '#E67E22', '#C39BD3', '#95A5A6'];
+            const MAX_SLICES = 8;
+            // Readable names for the tickers (Yahoo symbols); unknown ones fall back to the ticker
+            const ASSET_NAMES = {
+                'VUAA.MI': 'S&P 500',
+                'WEBN.MI': 'All-World',
+                'TE': 'T1 Energy',
+            };
+            const CASH_NAMES = { liquidita: 'Deposit account' };
+            const assetName = symbol => ASSET_NAMES[symbol] || symbol.split('.')[0];
+            const cashName = name => CASH_NAMES[name] || name;
+            const ERRORS = {
+                401: 'Invalid token',
+                403: 'Access to the portfolio denied',
+                502: 'Prices unavailable: the portfolio service is not responding',
+            };
+
+            const $ = id => document.getElementById(id);
+            const chart = $('portfolio-chart');
+            const legend = $('portfolio-legend');
+            const message = $('portfolio-message');
+
+            const DASH = '—';
+            const eur = new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'EUR' });
+            const eurSigned = new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'EUR', signDisplay: 'exceptZero' });
+            const pctSigned = new Intl.NumberFormat('en-GB', { style: 'percent', maximumFractionDigits: 2, signDisplay: 'exceptZero' });
+            const qty = new Intl.NumberFormat('en-GB', { maximumFractionDigits: 8 });
+            const priceFormats = {};
+
+            const isNum = v => typeof v === 'number' && isFinite(v);
+            const fmtEur = v => isNum(v) ? eur.format(v) : DASH;
+            const pct = v => (v * 100).toFixed(1) + '%';
+
+            function fmtPrice(value, currency) {
+                if (!isNum(value)) return DASH;
+                try {
+                    priceFormats[currency] = priceFormats[currency] ||
+                        new Intl.NumberFormat('en-GB', { style: 'currency', currency });
+                    return priceFormats[currency].format(value);
+                } catch (e) {
+                    return qty.format(value) + (currency ? ' ' + currency : '');
+                }
+            }
+
+            function cell(text, className) {
+                const td = document.createElement('td');
+                td.textContent = text;
+                if (className) td.className = className;
+                return td;
+            }
+
+            function setCenter(value, label) {
+                $('portfolio-center-value').textContent = value;
+                $('portfolio-center-label').textContent = label;
+            }
+
+            function showMessage(text, type) {
+                message.textContent = text;
+                message.className = 'portfolio-message ' + type;
+                message.hidden = false;
+            }
+
+            // 3D donut chart (Three.js): starts flat (2D) and tilts into 3D when first shown;
+            // the hovered slice lifts toward the viewer, the camera eases closer
+            const PIE = { outer: 1.25, inner: 0.62, depth: 0.32, gap: 0.035, lift: 0.26, push: 0.18 };
+            const INTRO_MS = 1600;
+            let pie = null;
+            let pieItems = [];
+            let focusedName = null;
+            // Mouse hover shows a slice temporarily; a click/tap (on the chart or the legend) pins it
+            let hoverName = null;
+            let pinnedName = null;
+            let defaultLabel = '';
+
+            function initPie() {
+                if (pie) return pie;
+                if (!window.THREE) return null;
+                let renderer;
+                try {
+                    renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+                } catch (e) {
+                    return null;
+                }
+                renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+                chart.prepend(renderer.domElement);
+
+                const scene = new THREE.Scene();
+                const camera = new THREE.PerspectiveCamera(32, 1, 0.1, 50);
+                scene.add(new THREE.AmbientLight(0xffffff, 0.55));
+                const key = new THREE.DirectionalLight(0xffffff, 0.85);
+                key.position.set(3, 6, 4);
+                scene.add(key);
+                const rim = new THREE.PointLight(0x8a2be2, 0.9, 12);
+                rim.position.set(-3, 2, -3);
+                scene.add(rim);
+
+                const group = new THREE.Group();
+                scene.add(group);
+
+                pie = {
+                    renderer, scene, camera, group,
+                    slices: [],
+                    raycaster: new THREE.Raycaster(),
+                    pointer: new THREE.Vector2(),
+                    hovering: false,
+                    zoom: 0,
+                    introStart: null,
+                    visible: true,
+                };
+
+                const resize = () => {
+                    const w = chart.clientWidth;
+                    const h = chart.clientHeight;
+                    renderer.setSize(w, h, false);
+                    camera.aspect = w / h;
+                    camera.updateProjectionMatrix();
+                };
+                resize();
+                window.addEventListener('resize', resize);
+
+                const canvas = renderer.domElement;
+                const sliceAt = event => {
+                    const rect = canvas.getBoundingClientRect();
+                    pie.pointer.set(
+                        ((event.clientX - rect.left) / rect.width) * 2 - 1,
+                        -((event.clientY - rect.top) / rect.height) * 2 + 1
+                    );
+                    pie.raycaster.setFromCamera(pie.pointer, camera);
+                    const hit = pie.raycaster.intersectObjects(pie.slices.map(sl => sl.mesh))[0];
+                    return hit ? hit.object.userData.name : null;
+                };
+                canvas.addEventListener('pointermove', event => {
+                    if (event.pointerType !== 'mouse') return;
+                    pie.hovering = true;
+                    hoverName = sliceAt(event);
+                    canvas.style.cursor = hoverName ? 'pointer' : '';
+                    updateFocus();
+                });
+                canvas.addEventListener('pointerleave', event => {
+                    if (event.pointerType !== 'mouse') return;
+                    pie.hovering = false;
+                    canvas.style.cursor = '';
+                    hoverName = null;
+                    updateFocus();
+                });
+                // A single tap (or click) selects a slice; tapping it again or an empty spot deselects
+                canvas.addEventListener('click', event => togglePin(sliceAt(event)));
+
+                // Render only while the chart is on screen
+                if ('IntersectionObserver' in window) {
+                    new IntersectionObserver(entries => {
+                        pie.visible = entries[0].isIntersecting;
+                    }).observe(chart);
+                }
+
+                const ease = (from, to) => from + (to - from) * 0.12;
+                const lerp = (from, to, t) => from + (to - from) * t;
+                const easeInOut = t => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+                (function frame(now) {
+                    requestAnimationFrame(frame);
+                    if (!pie.visible) return;
+
+                    if (pie.introStart === null && pie.slices.length) pie.introStart = now + 300;
+                    const intro = pie.introStart === null ? 0
+                        : easeInOut(Math.min(Math.max((now - pie.introStart) / INTRO_MS, 0), 1));
+                    group.scale.y = lerp(0.02, 1, intro);
+
+                    pie.zoom = ease(pie.zoom, pie.hovering || pinnedName ? 1 : 0);
+                    const distance = lerp(7.2, 5.5, intro) - pie.zoom * 0.45;
+                    const elevation = lerp(Math.PI / 2 - 0.001, 0.82, intro) - pie.zoom * 0.08;
+                    camera.position.set(0, Math.sin(elevation) * distance, Math.cos(elevation) * distance);
+                    camera.lookAt(0, -0.1, 0);
+
+                    pie.slices.forEach(sl => {
+                        const active = sl.mesh.userData.name === focusedName;
+                        sl.t = ease(sl.t, active ? 1 : 0);
+                        sl.dim = ease(sl.dim, focusedName && !active ? 1 : 0);
+                        sl.mesh.position.set(sl.dir.x * PIE.push * sl.t, PIE.lift * sl.t, sl.dir.z * PIE.push * sl.t);
+                        sl.mesh.scale.setScalar(1 + 0.06 * sl.t);
+                        sl.mesh.material.color.copy(sl.base).multiplyScalar(1 - 0.55 * sl.dim);
+                        sl.mesh.material.emissiveIntensity = 0.12 + 0.3 * sl.t;
+                    });
+                    renderer.render(scene, camera);
+                })(performance.now());
+
+                return pie;
+            }
+
+            function sliceGeometry(start, end) {
+                const shape = new THREE.Shape();
+                shape.moveTo(Math.cos(start) * PIE.outer, Math.sin(start) * PIE.outer);
+                shape.absarc(0, 0, PIE.outer, start, end, false);
+                shape.lineTo(Math.cos(end) * PIE.inner, Math.sin(end) * PIE.inner);
+                shape.absarc(0, 0, PIE.inner, end, start, true);
+                const geometry = new THREE.ExtrudeGeometry(shape, {
+                    depth: PIE.depth,
+                    curveSegments: Math.max(6, Math.ceil((end - start) * 24)),
+                    bevelEnabled: true,
+                    bevelThickness: 0.03,
+                    bevelSize: 0.02,
+                    bevelSegments: 3,
+                });
+                // Lay the donut flat with its top face at y = 0, so its hole projects onto the canvas center
+                geometry.rotateX(-Math.PI / 2);
+                geometry.translate(0, -PIE.depth, 0);
+                return geometry;
+            }
+
+            function buildPie(items, total) {
+                const p = initPie();
+                if (!p) return;
+                p.slices.forEach(sl => {
+                    p.group.remove(sl.mesh);
+                    sl.mesh.geometry.dispose();
+                    sl.mesh.material.dispose();
+                });
+                p.slices = [];
+
+                const gap = items.length > 1 ? PIE.gap : 0;
+                // Start at 12 o'clock and go clockwise as seen from the camera
+                let angle = Math.PI / 2;
+                items.forEach((item, i) => {
+                    const span = (item.value / total) * Math.PI * 2;
+                    const end = angle - gap / 2;
+                    const start = angle - Math.max(span - gap / 2, gap / 2 + 0.01);
+                    const mid = (start + end) / 2;
+                    angle -= span;
+
+                    const color = new THREE.Color(COLORS[i % COLORS.length]);
+                    const mesh = new THREE.Mesh(sliceGeometry(start, end), new THREE.MeshStandardMaterial({
+                        color,
+                        emissive: color,
+                        emissiveIntensity: 0.12,
+                        roughness: 0.4,
+                        metalness: 0.15,
+                    }));
+                    mesh.userData.name = item.name;
+                    p.group.add(mesh);
+                    p.slices.push({
+                        mesh,
+                        base: color.clone(),
+                        dir: new THREE.Vector3(Math.cos(mid), 0, -Math.sin(mid)),
+                        t: 0,
+                        dim: 0,
+                    });
+                });
+            }
+
+            function setFocus(name) {
+                const item = pieItems.find(i => i.name === name);
+                focusedName = item ? name : null;
+                legend.querySelectorAll('li').forEach(row => {
+                    row.classList.toggle('active', row.dataset.name === focusedName);
+                });
+                if (item) setCenter(pct(item.share), item.name);
+                else if (pieItems.length) setCenter('100%', defaultLabel);
+            }
+
+            const updateFocus = () => setFocus(hoverName || pinnedName);
+
+            function togglePin(name) {
+                pinnedName = name && name !== pinnedName ? name : null;
+                updateFocus();
+            }
+
+            // Tapping anywhere outside the chart and the legend clears the selection
+            document.addEventListener('click', event => {
+                if (pinnedName && !chart.contains(event.target) && !legend.contains(event.target)) togglePin(null);
+            });
+
+            function renderPie(positions, cashTotal) {
+                legend.replaceChildren();
+
+                let items = positions
+                    .filter(p => isNum(p.valueEur) && p.valueEur > 0)
+                    .map(p => ({ name: assetName(p.symbol), value: p.valueEur }));
+                if (cashTotal > 0) items.push({ name: 'Deposit account', value: cashTotal });
+                items.sort((a, b) => b.value - a.value);
+
+                if (items.length > MAX_SLICES) {
+                    const rest = items.slice(MAX_SLICES - 1).reduce((sum, i) => sum + i.value, 0);
+                    items = items.slice(0, MAX_SLICES - 1).concat({ name: 'Other', value: rest });
+                }
+
+                const total = items.reduce((sum, i) => sum + i.value, 0);
+                items.forEach(i => { i.share = total ? i.value / total : 0; });
+                pieItems = total ? items : [];
+                buildPie(pieItems, total);
+                if (!total) {
+                    setCenter(DASH, 'No data');
+                    return;
+                }
+
+                defaultLabel = items.length + (items.length === 1 ? ' asset' : ' assets');
+
+                items.forEach((item, i) => {
+                    const row = document.createElement('li');
+                    row.dataset.name = item.name;
+                    row.innerHTML = '<span class="legend-swatch"></span><span class="legend-name"></span><span class="legend-pct"></span>';
+                    row.querySelector('.legend-swatch').style.background = COLORS[i % COLORS.length];
+                    row.querySelector('.legend-name').textContent = item.name;
+                    row.querySelector('.legend-pct').textContent = pct(item.share);
+                    row.tabIndex = 0;
+                    row.setAttribute('role', 'button');
+                    row.addEventListener('pointerenter', event => {
+                        if (event.pointerType !== 'mouse') return;
+                        hoverName = item.name;
+                        updateFocus();
+                    });
+                    row.addEventListener('pointerleave', event => {
+                        if (event.pointerType !== 'mouse') return;
+                        hoverName = null;
+                        updateFocus();
+                    });
+                    row.addEventListener('click', () => togglePin(item.name));
+                    row.addEventListener('keydown', event => {
+                        if (event.key !== 'Enter' && event.key !== ' ') return;
+                        event.preventDefault();
+                        togglePin(item.name);
+                    });
+                    legend.appendChild(row);
+                });
+
+                // Keep the hovered/selected slice across the 60s refresh
+                if (!items.some(i => i.name === pinnedName)) pinnedName = null;
+                updateFocus();
+            }
+
+            function renderPositions(positions) {
+                const showInvested = positions.some(p => isNum(p.investedEur));
+                const showGain = positions.some(p => isNum(p.gainEur));
+
+                const head = ['Asset', 'Quantity', 'Price', 'Value'];
+                if (showInvested) head.push('Invested');
+                if (showGain) head.push('Gain');
+                $('portfolio-positions-head').replaceChildren(...head.map(h => {
+                    const th = document.createElement('th');
+                    th.textContent = h;
+                    return th;
+                }));
+
+                $('portfolio-positions-body').replaceChildren(...positions.map(p => {
+                    const tr = document.createElement('tr');
+                    const name = cell(assetName(p.symbol), 'symbol');
+                    name.title = p.symbol;
+                    tr.append(
+                        name,
+                        cell(isNum(p.quantity) ? qty.format(p.quantity) : DASH),
+                        cell(fmtPrice(p.price, p.currency)),
+                        cell(fmtEur(p.valueEur))
+                    );
+                    if (showInvested) tr.append(cell(fmtEur(p.investedEur)));
+                    if (showGain) {
+                        if (isNum(p.gainEur)) {
+                            const td = cell(eurSigned.format(p.gainEur), p.gainEur > 0 ? 'gain-pos' : p.gainEur < 0 ? 'gain-neg' : '');
+                            if (isNum(p.investedEur) && p.investedEur > 0) {
+                                const span = document.createElement('span');
+                                span.className = 'gain-pct';
+                                span.textContent = pctSigned.format(p.gainEur / p.investedEur);
+                                td.append(span);
+                            }
+                            tr.append(td);
+                        } else {
+                            tr.append(cell(DASH));
+                        }
+                    }
+                    return tr;
+                }));
+
+                $('portfolio-positions').hidden = positions.length === 0;
+            }
+
+            function renderCash(cash) {
+                $('portfolio-cash-body').replaceChildren(...cash.map(c => {
+                    const tr = document.createElement('tr');
+                    tr.append(
+                        cell(cashName(c.name)),
+                        cell(fmtEur(c.balanceEur)),
+                        cell(isNum(c.annualRatePercent) ? qty.format(c.annualRatePercent) + '%' : DASH)
+                    );
+                    return tr;
+                }));
+                $('portfolio-cash').hidden = cash.length === 0;
+            }
+
+            function render(data) {
+                const positions = Array.isArray(data.positions) ? data.positions : [];
+                const cash = Array.isArray(data.cash) ? data.cash : [];
+                const cashTotal = cash.reduce((sum, c) => sum + (isNum(c.balanceEur) ? c.balanceEur : 0), 0);
+
+                renderPie(positions, cashTotal);
+                renderPositions(positions);
+                renderCash(cash);
+
+                $('portfolio-total-value').textContent = fmtEur(data.totalValueEur);
+                $('portfolio-total').hidden = false;
+
+                const updatedAt = data.updatedAt ? new Date(data.updatedAt) : null;
+                $('portfolio-updated').textContent = updatedAt && !isNaN(updatedAt)
+                    ? 'Updated at ' + updatedAt.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
+                    : '';
+                message.hidden = true;
+            }
+
+            let loaded = false;
+
+            async function load() {
+                try {
+                    const local = window.PORTFOLIO_LOCAL;
+                    const res = local && local.apiUrl && local.readToken
+                        ? await fetch(local.apiUrl.replace(/\/+$/, '') + '/portfolio', {
+                            cache: 'no-store',
+                            headers: { Authorization: 'Bearer ' + local.readToken },
+                        })
+                        : await fetch(PORTFOLIO_API, { cache: 'no-store' });
+                    const body = await res.json().catch(() => null);
+                    if (!res.ok) {
+                        throw new Error(ERRORS[res.status] || (body && body.error) || 'Error ' + res.status);
+                    }
+                    render(body);
+                    loaded = true;
+                } catch (err) {
+                    console.error('Portfolio fetch failed:', err);
+                    const text = !(err instanceof TypeError) ? err.message
+                        : location.protocol === 'file:' ? 'Open the site from http://localhost (e.g. Live Server): the worker does not accept pages opened as files'
+                        : 'Unable to reach the portfolio server';
+                    // On a failed refresh keep the last data on screen
+                    showMessage(loaded ? 'Refresh failed: ' + text : text, 'error');
+                    if (!loaded) setCenter(DASH, 'Unavailable');
+                }
+            }
+
+            function start() {
+                load();
+                setInterval(() => {
+                    if (!document.hidden) load();
+                }, REFRESH_MS);
+            }
+
+            // Wait for the page to parse: Three.js is loaded by a script tag further down
+            document.addEventListener('DOMContentLoaded', () => {
+                if (IS_LOCAL) {
+                    const config = document.createElement('script');
+                    config.src = 'portfolio.local.js';
+                    config.onload = config.onerror = start;
+                    document.head.appendChild(config);
+                } else {
+                    start();
+                }
+            });
+        })();
+    </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/fflate@0.7.0/umd/index.min.js"></script>
